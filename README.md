@@ -1,5 +1,5 @@
 # io_scene_pbrt
-Keep in mind the development is not done, it's in very early stages, so consider it early aplha.
+Keep in mind the development is not done, it's in very early stages, so consider it early alpha.
 
 Exporter for blender 2.8x that exports the scene into pbrt's ascii file format. 
 The resulting files can then be rendered with PBRT renderer.
