@@ -164,12 +164,20 @@ def export_film(pbrt_file):
     return ''
 
 def export_sampler(pbrt_file):
-    pbrt_file.write(r'Sampler "halton" "integer pixelsamples" [32]')
+    pbrt_file.write(r'Sampler "halton" "integer pixelsamples" [%s]'% (bpy.data.scenes[0].spp))
     pbrt_file.write("\n")
     return ''
 
-def export_integrator(pbrt_file):
-    pbrt_file.write(r'Integrator "path" "integer maxdepth" 10')
+def export_integrator(pbrt_file, scene):
+    #pbrt_file.write("Integrator path")
+    pbrt_file.write(r'Integrator "%s"' % (bpy.data.scenes[0].integrators))
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"integer maxdepth" [%s]' % (bpy.data.scenes[0].maxdepth))
+    pbrt_file.write("\n")
+    return ''
+
+def export_LightSampleDistribution(pbrt_file, scene):
+    pbrt_file.write(r'"string lightsamplestrategy" "%s"' % (bpy.data.scenes[0].lightsamplestrategy))
     pbrt_file.write("\n")
     return ''
 
@@ -863,7 +871,7 @@ def export_pbrt(filepath, scene):
     with open(out, 'w') as pbrt_file:
         export_film(pbrt_file)
         export_sampler(pbrt_file)
-        export_integrator(pbrt_file)
+        export_integrator(pbrt_file,scene)
         export_camera(pbrt_file)
         world_begin(pbrt_file)
         #export_environmentLight(pbrt_file)
