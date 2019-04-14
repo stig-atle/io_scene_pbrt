@@ -7,4 +7,4 @@ The resulting files can then be rendered with PBRT renderer.
 This is still work in progress, so a lot of features are not complete yet.
 But Ḯ'm actively working on it to add each feature to it.
 
-I will now document what works, and provide some nice sample scenes that you can test with.
+I will now document what works and how to use it in the wiki, and will also provide some nice sample scenes that you can test with.
