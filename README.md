@@ -1,11 +1,11 @@
 # io_scene_pbrt
 
-[[https://stigatle.no/wp-content/uploads/2018/04/glass.jpg|alt=octocat]]
-[[https://stigatle.no/wp-content/uploads/2018/04/plastic-624x494.jpg|alt=octocat]]
-[[https://stigatle.no/wp-content/uploads/2018/04/abstract.jpg|alt=octocat]]
-[[https://stigatle.no/wp-content/uploads/2018/04/notclay-768x447.jpg|alt=octocat]]
-[[https://stigatle.no/wp-content/uploads/2018/04/texture.jpg|alt=octocat]]
-[[https://stigatle.no/wp-content/uploads/2018/04/DXEnvCoXUAExMh7.jpg|alt=octocat]]
+![image](https://stigatle.no/wp-content/uploads/2018/04/glass.jpg)
+![image](https://stigatle.no/wp-content/uploads/2018/04/plastic-624x494.jpg)
+![image](https://stigatle.no/wp-content/uploads/2018/04/abstract.jpg)
+![image](https://stigatle.no/wp-content/uploads/2018/04/notclay-768x447.jpg)
+![image](https://stigatle.no/wp-content/uploads/2018/04/texture.jpg)
+![image](https://stigatle.no/wp-content/uploads/2018/04/DXEnvCoXUAExMh7.jpg)
 
 Keep in mind the development is not done, it's in very early stages, so consider it early alpha.
 
