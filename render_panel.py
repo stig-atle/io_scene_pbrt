@@ -18,6 +18,14 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(scene, "exportpath")
 
+        layout.label(text="Environment Map")
+        row = layout.row()
+        row.prop(scene,"environmentmaptpath")
+
+        layout.label(text="Environment map scale:")
+        row = layout.row()
+        row.prop(scene, "environmentmapscale")
+
         layout.label(text="Frame settings:")
         row = layout.row()
         row.prop(scene, "frame_start")
@@ -50,6 +58,13 @@ def register():
         maxlen=1024,
         subtype='DIR_PATH')
 
+    bpy.types.Scene.environmentmaptpath = bpy.props.StringProperty(
+        name="",
+        description="Environment map",
+        default="",
+        maxlen=1024,
+        subtype='FILE_PATH')
+
     bpy.types.Scene.spp = bpy.props.IntProperty(name = "Halt at samples per pixel", description = "Set spp", default = 100, min = 1, max = 9999)
     bpy.types.Scene.maxdepth = bpy.props.IntProperty(name = "Max depth", description = "Set max depth", default = 10, min = 1, max = 9999)
 
@@ -58,4 +73,6 @@ def register():
 
     lightsamplestrategy = [("uniform", "uniform", "", 1), ("power", "power", "", 2), ("spatial", "spatial", "", 3)]
     bpy.types.Scene.lightsamplestrategy = bpy.props.EnumProperty(name = "lightsamplestrategy", items=lightsamplestrategy , default="spatial")
+
+    bpy.types.Scene.environmentmapscale = bpy.props.FloatProperty(name = "Env. map scale", description = "Env. map scale", default = 1, min = 0.001, max = 9999)
     

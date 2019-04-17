@@ -80,7 +80,7 @@ def export_spot_lights(pbrt_file, scene):
                     #TODO: Parse the values from the light \ color and so on. also add falloff etc.
                     pbrt_file.write("\"blackbody I\" [5500 125]\n")
 
-                    pbrt_file.write("AttributeEnd\n")
+                    pbrt_file.write("AttributeEnd\n\n")
     return ''
 
 def export_point_lights(pbrt_file, scene):
@@ -190,6 +190,34 @@ def world_end(pbrt_file):
     pbrt_file.write("WorldEnd")
     pbrt_file.write("\n")
     return ''
+
+def export_EnviromentMap(pbrt_file):
+    if bpy.data.scenes[0].environmentmaptpath != "":
+        environmentMapFileName= getTextureInSlotName(bpy.data.scenes[0].environmentmaptpath)
+        
+        #Copy the file by getting the full filepath:
+        srcfile = bpy.path.abspath(bpy.data.scenes[0].environmentmaptpath)
+        dstdir = bpy.path.abspath(bpy.data.scenes[0].exportpath + 'textures/' + environmentMapFileName)
+        print("os.path.dirname...")
+        print(os.path.dirname(srcfile))
+        print("\n")
+        print("srcfile: ")
+        print(srcfile)
+        print("\n")
+        print("dstdir: ")
+        print(dstdir)
+        print("\n")
+        print("File name is :")
+        print(environmentMapFileName)
+        print("Copying environment texture from source directory to destination directory.")
+        shutil.copyfile(srcfile, dstdir)
+
+        environmentmapscaleValue = bpy.data.scenes[0].environmentmapscale
+        pbrt_file.write("AttributeBegin\n")
+        pbrt_file.write(r'LightSource "infinite" "string mapname" "%s" "color scale" [%s %s %s]' % ("textures/" + environmentMapFileName,environmentmapscaleValue,environmentmapscaleValue,environmentmapscaleValue))
+        pbrt_file.write("\n")
+        pbrt_file.write("AttributeEnd")
+        pbrt_file.write("\n\n")
 
 def export_environmentLight(pbrt_file):
     print("image texture type: ")
@@ -874,6 +902,7 @@ def export_pbrt(filepath, scene):
         export_integrator(pbrt_file,scene)
         export_camera(pbrt_file)
         world_begin(pbrt_file)
+        export_EnviromentMap(pbrt_file)
         #export_environmentLight(pbrt_file)
         print('Begin export lights:')
         export_point_lights(pbrt_file,scene)
