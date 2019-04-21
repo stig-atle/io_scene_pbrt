@@ -18,6 +18,7 @@ bl_info = {
     "blender" : (2, 80, 0),
     "location" : "",
     "warning" : "",
+    "wiki_url": "https://github.com/stig-atle/io_scene_pbrt/wiki",
     "category" : "Render"
 }
 
