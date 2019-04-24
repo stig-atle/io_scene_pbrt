@@ -159,7 +159,7 @@ def export_camera(pbrt_file):
     return ''
 
 def export_film(pbrt_file):
-    pbrt_file.write(r'Film "image" "integer xresolution" [720] "integer yresolution" [576] "string filename" "pbrtBlend.exr"')
+    pbrt_file.write(r'Film "image" "integer xresolution" [720] "integer yresolution" [576] "string filename" "%s"' % (bpy.data.scenes[0].outputfilename))
     pbrt_file.write("\n")
     return ''
 
@@ -896,6 +896,11 @@ def export_dummymesh(pbrt_file):
 
 def export_pbrt(filepath, scene):
     out = os.path.join(filepath, 'test.pbrt')
+    if not os.path.exists(filepath):
+        print('Output directory did not exist, creating: ')
+        print(filepath)
+        os.makedirs(filepath)
+
     with open(out, 'w') as pbrt_file:
         export_film(pbrt_file)
         export_sampler(pbrt_file)

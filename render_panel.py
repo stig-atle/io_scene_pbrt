@@ -14,9 +14,13 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         scene = context.scene
 
         # Create a simple row.
-        layout.label(text="Output path")
+        layout.label(text="Output folder path")
         row = layout.row()
         row.prop(scene, "exportpath")
+
+        layout.label(text="Output filename")
+        row = layout.row()
+        row.prop(scene,"outputfilename")
 
         layout.label(text="Environment Map")
         row = layout.row()
@@ -64,6 +68,13 @@ def register():
         default="",
         maxlen=1024,
         subtype='FILE_PATH')
+
+    bpy.types.Scene.outputfilename = bpy.props.StringProperty(
+        name="",
+        description="Image output file name",
+        default="output.exr",
+        maxlen=1024,
+        subtype='FILE_NAME')
 
     bpy.types.Scene.spp = bpy.props.IntProperty(name = "Halt at samples per pixel", description = "Set spp", default = 100, min = 1, max = 9999)
     bpy.types.Scene.maxdepth = bpy.props.IntProperty(name = "Max depth", description = "Set max depth", default = 10, min = 1, max = 9999)
