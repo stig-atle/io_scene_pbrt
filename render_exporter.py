@@ -159,7 +159,7 @@ def export_camera(pbrt_file):
     return ''
 
 def export_film(pbrt_file):
-    pbrt_file.write(r'Film "image" "integer xresolution" [720] "integer yresolution" [576] "string filename" "%s"' % (bpy.data.scenes[0].outputfilename))
+    pbrt_file.write(r'Film "image" "integer xresolution" [%s] "integer yresolution" [%s] "string filename" "%s"' % (bpy.data.scenes[0].resolution_x, bpy.data.scenes[0].resolution_y, bpy.data.scenes[0].outputfilename))
     pbrt_file.write("\n")
     return ''
 

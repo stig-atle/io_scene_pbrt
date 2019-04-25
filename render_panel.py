@@ -35,6 +35,11 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         row.prop(scene, "frame_start")
         row.prop(scene, "frame_end")
 
+        layout.label(text="Resolution:")
+        row = layout.row()
+        row.prop(scene, "resolution_x")
+        row.prop(scene, "resolution_y")
+       
         layout.label(text="Integrator settings:")
         row = layout.row()
 
@@ -87,3 +92,5 @@ def register():
 
     bpy.types.Scene.environmentmapscale = bpy.props.FloatProperty(name = "Env. map scale", description = "Env. map scale", default = 1, min = 0.001, max = 9999)
     
+    bpy.types.Scene.resolution_x = bpy.props.IntProperty(name = "X", description = "Resolution x", default = 1366, min = 1, max = 9999)
+    bpy.types.Scene.resolution_y = bpy.props.IntProperty(name = "Y", description = "Resolution y", default = 768, min = 1, max = 9999)
