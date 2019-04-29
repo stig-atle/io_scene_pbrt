@@ -822,7 +822,7 @@ def export_material(pbrt_file, object):
 def matrixtostr(matrix):
     return '%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f '%(matrix[0][0],matrix[0][1],matrix[0][2],matrix[0][3],matrix[1][0],matrix[1][1],matrix[1][2],matrix[1][3],matrix[2][0],matrix[2][1],matrix[2][2],matrix[2][3],matrix[3][0],matrix[3][1],matrix[3][2],matrix[3][3])
 
-def export_geometry(pbrt_file, scene):
+def createDefaultExportDirectories(pbrt_file, scene):
     path = bpy.path.abspath(bpy.data.scenes[0].exportpath + 'ply')
     texturePath = bpy.path.abspath(bpy.data.scenes[0].exportpath + 'textures')
 
@@ -832,6 +832,7 @@ def export_geometry(pbrt_file, scene):
     print(texturePath)
 
     if not os.path.exists(path):
+        print('Ply directory did not exist, creating: ')
         os.makedirs(path)
 
     if not os.path.exists(texturePath):
@@ -839,10 +840,10 @@ def export_geometry(pbrt_file, scene):
         print(texturePath)
         os.makedirs(texturePath)
 
-    #bpy.ops.object.mode_set(mode='OBJECT')
-    #bpy.ops.object.select_by_type(type='MESH')
-    #col = bpy.context.selected_objects
 
+def export_geometry(pbrt_file, scene):
+    path = bpy.path.abspath(bpy.data.scenes[0].exportpath + 'ply')
+    
     #export all geometry as ply..
     # https://developer.blender.org/diffusion/BA/browse/master/io_mesh_ply/export_ply.py;fe34f82e7059bb6b89dfc88b55f030111f2d431f
     for object in scene.objects:
@@ -902,6 +903,7 @@ def export_pbrt(filepath, scene):
         os.makedirs(filepath)
 
     with open(out, 'w') as pbrt_file:
+        createDefaultExportDirectories(pbrt_file,scene)
         export_film(pbrt_file)
         export_sampler(pbrt_file)
         export_integrator(pbrt_file,scene)
