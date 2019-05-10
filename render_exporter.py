@@ -672,6 +672,15 @@ def export_pbrt_disney_material (pbrt_file, mat):
 
     # https://blender.stackexchange.com/questions/80773/how-to-get-the-name-of-image-of-image-texture-with-python
 
+def export_pbrt_blackbody_material (pbrt_file, mat):
+    print('Currently exporting Pbrt BlackBody material')
+    print (mat.name)
+    nodes = mat.node_tree.nodes
+    pbrt_file.write(r'AreaLightSource "diffuse" "blackbody L" [%s ' %(nodes["Pbrt BlackBody"].Temperature))
+    pbrt_file.write(r'%s]' %(nodes["Pbrt BlackBody"].Lambda))
+    pbrt_file.write("\n")
+    return ''
+
 def hastexturenewcode(mat, slotname):
     foundTex = False
     print ("checking texture for : ")
@@ -815,6 +824,9 @@ def export_material(pbrt_file, object):
 
         if mat.node_tree.nodes[1].name == 'Pbrt Disney':
             export_pbrt_disney_material(pbrt_file,mat)
+
+        if mat.node_tree.nodes[1].name == 'Pbrt BlackBody':
+            export_pbrt_blackbody_material(pbrt_file,mat)
 
     return''
 

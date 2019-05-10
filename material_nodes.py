@@ -32,6 +32,7 @@ node_categories = [
         NodeItem("CustomNodeTypeSubsurface"),
         NodeItem("CustomNodeTypeSubstrate"),
         NodeItem("CustomNodeTypePlastic"),
+        NodeItem("CustomNodeTypeBlackBody"),
         ]),
     ]
 
@@ -449,6 +450,42 @@ class PbrtPlastic(Node, MyCustomTreeNode):
     # Explicit user label overrides this, but here we can define a label dynamically.
     def draw_label(self):
         return "Pbrt Plastic"
+
+    # Derived from the Node base type.
+class PbrtBlackBody(Node, MyCustomTreeNode):
+    '''A custom node'''
+    bl_idname = 'CustomNodeTypeBlackBody'
+    bl_label = 'Pbrt BlackBody'
+    bl_icon = 'INFO'
+
+    def update_value(self, context):
+        self.update ()
+
+    Temperature : bpy.props.IntProperty(default=5500, min=0, max=99999)
+    Lambda : bpy.props.IntProperty(default=10, min=1, max=99999)
+
+    def init(self, context):
+        self.outputs.new('NodeSocketFloat', "Pbrt BlackBody")
+        
+    def update(self):
+        print('Updating BlackBody props..')
+        try:
+            can_continue = True
+        except:
+            can_continue = False
+        if can_continue:
+            print("continues in update rutine.")
+           
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "Temperature",text = 'Temperature')
+        layout.prop(self, "Lambda",text = 'Lambda')
+
+    def draw_buttons_ext(self, context, layout):
+        layout.prop(self, "Temperature",text = 'Temperature')
+        layout.prop(self, "Lambda",text = 'Lambda')
+        
+    def draw_label(self):
+        return "Pbrt BlackBody"
 
 #@base.register_class
 class PbrtTextureSocket(bpy.types.NodeSocket):
