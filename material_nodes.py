@@ -33,6 +33,7 @@ node_categories = [
         NodeItem("CustomNodeTypeSubstrate"),
         NodeItem("CustomNodeTypePlastic"),
         NodeItem("CustomNodeTypeBlackBody"),
+        NodeItem("CustomNodeTypeMedium"),
         ]),
     ]
 
@@ -155,6 +156,10 @@ class PbrtGlass(Node, MyCustomTreeNode):
         self.inputs.new('NodeSocketColor', "Kr")
         self.inputs.new('NodeSocketColor', "Kt")
         self.outputs.new('NodeSocketFloat', "Pbrt Glass")
+        
+        medium_node = self.inputs.new('NodeSocketColor', "medium")
+        medium_node.hide_value = True
+
 
     def update(self):
         try:
@@ -486,6 +491,48 @@ class PbrtBlackBody(Node, MyCustomTreeNode):
         
     def draw_label(self):
         return "Pbrt BlackBody"
+
+class PbrtMedium(Node, MyCustomTreeNode):
+    '''A custom node'''
+    bl_idname = 'CustomNodeTypeMedium'
+    bl_label = 'Pbrt Medium'
+    bl_icon = 'INFO'
+
+    def update_value(self, context):
+        self.update ()
+
+    mediumType = [("homogeneous","homogeneous","",1)]
+    Type : bpy.props.EnumProperty(name = "Type", items=mediumType , default="homogeneous")
+    Scale : bpy.props.FloatProperty(default=1.0, min=0.0, max=99999.0)
+    g : bpy.props.FloatProperty(default=0.0, min=0.0001, max=1.0)
+
+    def init(self, context):
+        self.outputs.new('NodeSocketFloat', "Pbrt Medium")
+        self.inputs.new('NodeSocketColor', "sigma_a")
+        self.inputs.new('NodeSocketColor', "sigma_s")
+        
+    def update(self):
+        print('Updating Pbrt Medium props..')
+        try:
+            can_continue = True
+        except:
+            can_continue = False
+        if can_continue:
+            print("continues in update rutine.")
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "Type",text = 'Type')
+        layout.prop(self, "g",text = 'g')
+        layout.prop(self, "Scale",text = 'Scale')
+
+    def draw_buttons_ext(self, context, layout):
+        layout.prop(self, "Type",text = 'Type')
+        layout.prop(self, "g",text = 'g')
+        layout.prop(self, "Scale",text = 'Scale')
+
+    def draw_label(self):
+        return "Pbrt Medium"
+
 
 #@base.register_class
 class PbrtTextureSocket(bpy.types.NodeSocket):

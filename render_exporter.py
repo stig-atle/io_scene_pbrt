@@ -376,6 +376,31 @@ def export_pbrt_mirror_material (pbrt_file, mat):
     pbrt_file.write("\n")
     return ''
 
+def export_medium(pbrt_file, inputNode ,nodes):
+    if inputNode is not None:
+        mediumNode = nodes.get("Pbrt Medium")
+        if mediumNode:
+            print('We have a node connected to medium slot.')
+            print('The name of the connected node is: ')
+            print(mediumNode.name)
+            pbrt_file.write(r'MakeNamedMedium "%s"' % (mediumNode.name))
+            pbrt_file.write("\n")
+            pbrt_file.write(r'"string type" ["%s"]' % (mediumNode.Type))
+            pbrt_file.write("\n")
+            sigma_a = mediumNode.inputs[0].default_value
+            pbrt_file.write(r'"rgb sigma_a" [ %s %s %s]' %(sigma_a[0],sigma_a[1],sigma_a[2]))
+            pbrt_file.write("\n")
+            sigma_s = mediumNode.inputs[1].default_value
+            pbrt_file.write(r'"rgb sigma_s" [ %s %s %s]' %(sigma_s[0],sigma_s[1],sigma_s[2]))
+            pbrt_file.write("\n")
+            pbrt_file.write(r'"float g" [ %s ]' % (mediumNode.g))
+            pbrt_file.write("\n")
+            pbrt_file.write(r'"float scale" [ %s ]' % (mediumNode.Scale))
+            pbrt_file.write("\n")
+            pbrt_file.write("\n")
+            return mediumNode.name
+    return None
+
 def export_pbrt_glass_material (pbrt_file, mat):
     print('Currently exporting Pbrt Glass material')
     print (mat.name)
@@ -385,6 +410,8 @@ def export_pbrt_glass_material (pbrt_file, mat):
     ktTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Glass"].inputs[3],mat,False)
     uRoughnessTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Glass"].inputs[0],mat,True)
     vRoughnessTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Glass"].inputs[1],mat, True)
+
+    mediumNodeName = export_medium(pbrt_file,nodes["Pbrt Glass"].inputs[4],nodes)
 
     pbrt_file.write(r'Material "glass"')
     pbrt_file.write("\n")
@@ -416,6 +443,9 @@ def export_pbrt_glass_material (pbrt_file, mat):
     pbrt_file.write(r'"float index" [%s]' %(nodes["Pbrt Glass"].Index))
     pbrt_file.write("\n")
 
+    if mediumNodeName is not None:
+        pbrt_file.write(r'MediumInterface "" "%s"' % (mediumNodeName))
+        pbrt_file.write("\n")
     return ''
 
 def export_pbrt_substrate_material (pbrt_file, mat):
