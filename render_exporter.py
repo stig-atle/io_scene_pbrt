@@ -138,24 +138,12 @@ def export_camera(pbrt_file):
 
         #https://blender.stackexchange.com/questions/14745/how-do-i-change-the-focal-length-of-a-camera-with-python
         fov = bpy.data.cameras[0].angle * 180 / 3.14
-        pbrt_file.write('Camera "perspective" "float fov" [%s]\n' % (fov))
+        pbrt_file.write('Camera "perspective"\n')
+        pbrt_file.write('"float fov" [%s]\n' % (fov))
 
-        # https://gooseberry.blender.org/simple-python-tips-for-artists/
-
-
-        #aperture=bpy.data.scenes['Scene'].camera.data.cycles.aperture_size
-
-        #if bpy.data.cameras[0].dof_object is None:
-            #if bpy.data.cameras[0].dof_distance > 0.0:
-#                dof = bpy.data.cameras[0].dof_distance
-             #   pbrt_file.write('"float focaldistance" [%s]\n' % (bpy.data.cameras[0].dof_distance))
-              #  pbrt_file.write('"float lensradius" [%s]\n' % (aperture))
-        #else:
-         #   pbrt_file.write('"float focaldistance" [%s]\n' % (measure(cam_ob.matrix_world.translation, bpy.data.cameras[0].dof_object.matrix_world.translation)))
-          #  pbrt_file.write('"float lensradius" [%s]\n' % (aperture))
-        #print("finished cam_data function")
-    #else:
-     #   print("%s object as camera" % cam_ob.type)
+        if bpy.data.scenes['Scene'].dofLookAt is not None:
+            pbrt_file.write('"float lensradius" [%s]\n' % (bpy.data.scenes['Scene'].lensradius))
+            pbrt_file.write('"float focaldistance" [%s]\n\n' % (measure(cam_ob.matrix_world.translation, bpy.data.scenes['Scene'].dofLookAt.matrix_world.translation)))
     return ''
 
 def export_film(pbrt_file):

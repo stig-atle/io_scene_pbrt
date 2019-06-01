@@ -50,6 +50,12 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(scene,"spp")
 
+        layout.label(text="Depth of field:")
+        row = layout.row()
+        row.prop(scene,"dofLookAt")
+        row = layout.row()
+        row.prop(scene, "lensradius")
+
         layout.label(text="Light strategy:")
         row = layout.row()
         row.prop(scene,"lightsamplestrategy")
@@ -94,3 +100,7 @@ def register():
     
     bpy.types.Scene.resolution_x = bpy.props.IntProperty(name = "X", description = "Resolution x", default = 1366, min = 1, max = 9999)
     bpy.types.Scene.resolution_y = bpy.props.IntProperty(name = "Y", description = "Resolution y", default = 768, min = 1, max = 9999)
+
+    bpy.types.Scene.dofLookAt = bpy.props.PointerProperty(name="Target", type=bpy.types.Object)
+    bpy.types.Scene.lensradius = bpy.props.FloatProperty(name = "Lens radius", description = "Lens radius", default = 0, min = 0.001, max = 9999)
+    
