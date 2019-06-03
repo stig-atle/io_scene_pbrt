@@ -14,6 +14,7 @@ I also love rendering, and PBRT is a great renderer, since the source code for t
 I will now document what works and how to use it in the wiki, and will also provide some nice sample scenes that you can test with.
 Below you see some of my test renders that was made during the initial development.
 
+![image](https://github.com/stig-atle/io_scene_pbrt/blob/master/samplescene/samplescene_dof.jpg)
 ![image](https://github.com/stig-atle/io_scene_pbrt/blob/master/samplescene/samplescene_medium.jpg)
 ![image](https://stigatle.no/wp-content/uploads/2018/04/glass.jpg)
 ![image](https://stigatle.no/wp-content/uploads/2018/04/plastic-624x494.jpg)
