@@ -1,4 +1,3 @@
-from io_mesh_ply import export_ply
 import bpy
 import os
 import math
@@ -210,7 +209,6 @@ def export_EnviromentMap(pbrt_file):
 def export_environmentLight(pbrt_file):
     print("image texture type: ")
     pbrt_file.write("\n")
-    #environmenttype = bpy.data .worlds['World'].node_tree.nodes['Background'].inputs['Color'].links[0].from_node.image.type
     environmenttype = bpy.data.worlds['World'].node_tree.nodes['Background'].inputs['Color'].links[0].from_node.type
     environmentMapPath = ""
     environmentMapFileName = ""
@@ -273,13 +271,10 @@ def exportTextureInSlotNew(pbrt_file,textureSlotParam,isFloatTexture):
     print(texturefilename)
     print("Copying texture from source directory to destination directory.")
     shutil.copyfile(srcfile, dstdir)
-#    foundTex = True
     return ''
 
 def export_texture_from_input (pbrt_file, inputSlot, mat, isFloatTexture):
     kdTextureName = ""
-    #print('Input slot name:')
-    #print(inputSlot.name)
     slot = inputSlot
     
     matnodes = mat.node_tree.nodes
@@ -853,17 +848,9 @@ def matrixtostr(matrix):
     return '%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f '%(matrix[0][0],matrix[0][1],matrix[0][2],matrix[0][3],matrix[1][0],matrix[1][1],matrix[1][2],matrix[1][3],matrix[2][0],matrix[2][1],matrix[2][2],matrix[2][3],matrix[3][0],matrix[3][1],matrix[3][2],matrix[3][3])
 
 def createDefaultExportDirectories(pbrt_file, scene):
-    path = bpy.path.abspath(bpy.data.scenes[0].exportpath + 'ply')
     texturePath = bpy.path.abspath(bpy.data.scenes[0].exportpath + 'textures')
-
-    print("Exporting meshes to:   ")
-    print(path)
     print("Exporting textures to: ")
     print(texturePath)
-
-    if not os.path.exists(path):
-        print('Ply directory did not exist, creating: ')
-        os.makedirs(path)
 
     if not os.path.exists(texturePath):
         print('Texture directory did not exist, creating: ')
@@ -872,36 +859,58 @@ def createDefaultExportDirectories(pbrt_file, scene):
 
 
 def export_geometry(pbrt_file, scene):
-    path = bpy.path.abspath(bpy.data.scenes[0].exportpath + 'ply')
     
-    #export all geometry as ply..
-    # https://developer.blender.org/diffusion/BA/browse/master/io_mesh_ply/export_ply.py;fe34f82e7059bb6b89dfc88b55f030111f2d431f
+    # We now export the mesh as pbrt's triangle meshes.
+    # I used the code here for reference:
+    # https://github.com/JerryCao1985/SORT/blob/ac6096c49288b95d954b0ea943b97134becdac9b/blender-plugin/2.78/sortblend/exporter/pbrt_exporter.py#L280
     for object in scene.objects:
         print("exporting:")
         print(object.name)
 
         if object is not None and object.type != 'CAMERA' and object.type == 'MESH':
             print('exporting object: ' + object.name)
-
-            #bpy.ops.object.select_all(action='DESELECT')
-            #bpy.context.scene.objects.active = object
-            fPath = str((path + "/" +object.name + '.ply'))
-            export_ply.save_mesh(filepath=fPath, mesh=object.data)
-            #export_ply.save(filepath=fPath, mesh=object.data)
-
             pbrt_file.write("AttributeBegin\n")
-            #pbrt_file.write("Scale -100 100 100")
             pbrt_file.write( "Transform [" + matrixtostr( object.matrix_world.transposed() ) + "]\n" )
-
-
             export_material(pbrt_file, object)
+            mesh = object.data
+            pbrt_file.write( "Shape \"trianglemesh\"\n")
 
-            pbrt_file.write(r'Shape "plymesh" "string filename" "ply/' + object.name + '.ply"')
+            pbrt_file.write( '\"point P\" [\n' )
+            for vertex in mesh.vertices:
+                pbrt_file.write("%s %s %s\n" % (vertex.co.x, vertex.co.y, vertex.co.z))
+            pbrt_file.write( "]\n" )
+            
+            pbrt_file.write( "\"normal N\" [\n" )
+            mesh.calc_normals_split()
+            normals = [""] * len( mesh.vertices )
+            for poly in mesh.polygons:
+                for loop_index in poly.loop_indices:
+                    id = mesh.loops[loop_index].vertex_index
+                    normals[id] = ("%s %s %s\n" % (mesh.loops[loop_index].normal.x, mesh.loops[loop_index].normal.y, mesh.loops[loop_index].normal.z))
+                    
+            pbrt_file.write( " ".join( normals ) )
+            pbrt_file.write( "]\n" )
+            uv_layer = mesh.uv_layers.active.data[:]
 
-            pbrt_file.write("\n")
-            pbrt_file.write("AttributeEnd\n")
-            pbrt_file.write("\n\n")
-            #object.select = False
+            uvs = [""] * len( mesh.vertices )
+            pbrt_file.write( "\"float st\" [\n" )
+            for poly in mesh.polygons:
+                for loop_index in poly.loop_indices:
+                    id = mesh.loops[loop_index].vertex_index
+                    uv = uv_layer[loop_index].uv
+                    uvs[id] = " %f %f"%(uv[0],uv[1])
+            pbrt_file.write( " ".join( uvs ) )
+            pbrt_file.write( "]\n" )
+
+            pbrt_file.write( "\"integer indices\" [\n" )
+            for p in mesh.polygons:
+                if len(p.vertices) == 3:
+                    pbrt_file.write( "%d %d %d " %( p.vertices[0] , p.vertices[1] , p.vertices[2] ) )
+                elif len(p.vertices) == 4:
+                    pbrt_file.write( "%d %d %d %d %d %d " % (p.vertices[0],p.vertices[1],p.vertices[2],p.vertices[0],p.vertices[2],p.vertices[3]))
+            pbrt_file.write( "]\n" )
+            pbrt_file.write("AttributeEnd\n\n")
+
     return ''
 
 def export_dummymesh(pbrt_file):

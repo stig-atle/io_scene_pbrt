@@ -16,6 +16,7 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         # Create a simple row.
         layout.label(text="Output folder path")
         row = layout.row()
+        
         row.prop(scene, "exportpath")
 
         layout.label(text="Output filename")
