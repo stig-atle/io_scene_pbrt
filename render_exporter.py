@@ -105,6 +105,7 @@ def export_camera(pbrt_file):
     cam_ob = bpy.context.scene.camera
     if cam_ob is None:
         print("no scene camera,aborting")
+        self.report({'ERROR'}, "No camera in scene, aborting")
     elif cam_ob.type == 'CAMERA':
         print("regular scene cam")
         print("render res: ", bpy.data.scenes['Scene'].render.resolution_x , " x ", bpy.data.scenes['Scene'].render.resolution_y)
