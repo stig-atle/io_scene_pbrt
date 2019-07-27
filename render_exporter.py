@@ -17,18 +17,10 @@ class PBRTRenderEngine(bpy.types.RenderEngine):
     bl_use_shading_nodes_custom = False
     bl_use_texture_preview = True
     bl_use_texture = True
-
+    
     def render(self, scene):
-        print("Starting calling pbrt_export")
-        print("Output path:")
-        #print(bpy.data.scenes[0].render.filepath)
-        #export_pbrt(bpy.data.scenes[0].render.filepath, scene)
-        print(bpy.data.scenes[0].exportpath)
-        export_pbrt(bpy.data.scenes[0].exportpath, scene)
-        #bpy.ops.render.render()
-
-
-
+        self.report({'ERROR'}, "Use export function in PBRT panel.")
+        
 from bl_ui import properties_render
 from bl_ui import properties_material
 for member in dir(properties_render):
@@ -146,8 +138,14 @@ def export_camera(pbrt_file):
             pbrt_file.write('"float focaldistance" [%s]\n\n' % (measure(cam_ob.matrix_world.translation, bpy.data.scenes['Scene'].dofLookAt.matrix_world.translation)))
     return ''
 
-def export_film(pbrt_file):
-    pbrt_file.write(r'Film "image" "integer xresolution" [%s] "integer yresolution" [%s] "string filename" "%s"' % (bpy.data.scenes[0].resolution_x, bpy.data.scenes[0].resolution_y, bpy.data.scenes[0].outputfilename))
+def export_film(pbrt_file, frameNumber):
+    outputFileName = os.path.splitext(os.path.basename(bpy.data.scenes[0].outputfilename))
+    print("Outputfilename:")
+    print(outputFileName[0])
+    print(outputFileName[1])
+
+    finalFileName = outputFileName[0] + frameNumber  + outputFileName[1]
+    pbrt_file.write(r'Film "image" "integer xresolution" [%s] "integer yresolution" [%s] "string filename" "%s"' % (bpy.data.scenes[0].resolution_x, bpy.data.scenes[0].resolution_y, finalFileName))
     pbrt_file.write("\n")
     return ''
 
@@ -935,8 +933,8 @@ def export_dummymesh(pbrt_file):
     pbrt_file.write("\n\n")
     return ''
 
-def export_pbrt(filepath, scene):
-    out = os.path.join(filepath, 'test.pbrt')
+def export_pbrt(filepath, scene , frameNumber):
+    out = os.path.join(filepath, "test" + frameNumber +".pbrt")
     if not os.path.exists(filepath):
         print('Output directory did not exist, creating: ')
         print(filepath)
@@ -944,7 +942,7 @@ def export_pbrt(filepath, scene):
 
     with open(out, 'w') as pbrt_file:
         createDefaultExportDirectories(pbrt_file,scene)
-        export_film(pbrt_file)
+        export_film(pbrt_file, frameNumber)
         export_sampler(pbrt_file)
         export_integrator(pbrt_file,scene)
         export_camera(pbrt_file)

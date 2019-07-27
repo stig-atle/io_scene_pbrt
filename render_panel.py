@@ -1,4 +1,21 @@
 import bpy
+from . import render_exporter
+
+class ExportScene(bpy.types.Operator):
+    bl_idname = 'scene.export'
+    bl_label = 'Export Scene'
+    bl_options = {"REGISTER", "UNDO"}
+
+    def execute(self, context):
+        print("Starting calling pbrt_export")
+        print("Output path:")
+        print(bpy.data.scenes[0].exportpath)
+        for frameNumber in range(bpy.data.scenes['Scene'].batch_frame_start, bpy.data.scenes['Scene'].batch_frame_end +1):
+            bpy.data.scenes['Scene'].frame_set(frameNumber)
+            print("Exporting frame: %s" % (frameNumber))
+            render_exporter.export_pbrt(bpy.data.scenes['Scene'].exportpath, bpy.data.scenes['Scene'], '{0:05d}'.format(frameNumber))
+        self.report({'INFO'}, "Export complete.")
+        return {"FINISHED"}
 
 class PbrtRenderSettingsPanel(bpy.types.Panel):
     """Creates a Pbrt settings panel in the render context of the properties editor"""
@@ -33,8 +50,8 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
 
         layout.label(text="Frame settings:")
         row = layout.row()
-        row.prop(scene, "frame_start")
-        row.prop(scene, "frame_end")
+        row.prop(scene, "batch_frame_start")
+        row.prop(scene, "batch_frame_end")
 
         layout.label(text="Resolution:")
         row = layout.row()
@@ -60,10 +77,10 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         layout.label(text="Light strategy:")
         row = layout.row()
         row.prop(scene,"lightsamplestrategy")
-
+        
         layout.label(text="Export:")
         row = layout.row()
-        row.operator("render.render", text="Export scene")
+        layout.operator("scene.export", icon='MESH_CUBE', text="Export scene")
 
 def register():
     #bpy.utils.register_class(PbrtRenderSettingsPanel)
@@ -105,3 +122,5 @@ def register():
     bpy.types.Scene.dofLookAt = bpy.props.PointerProperty(name="Target", type=bpy.types.Object)
     bpy.types.Scene.lensradius = bpy.props.FloatProperty(name = "Lens radius", description = "Lens radius", default = 0, min = 0.001, max = 9999)
     
+    bpy.types.Scene.batch_frame_start = bpy.props.IntProperty(name = "Frame start", description = "Frame start", default = 1, min = 1, max = 9999999)
+    bpy.types.Scene.batch_frame_end = bpy.props.IntProperty(name = "Frame end", description = "Frame end", default = 1, min = 1, max = 9999999)
