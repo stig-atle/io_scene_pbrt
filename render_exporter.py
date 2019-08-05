@@ -1,11 +1,11 @@
 import bpy
+import bmesh
 import os
 import math
 from math import *
 import mathutils
 from mathutils import Vector
 import shutil
-
 
 #render engine custom begin
 class PBRTRenderEngine(bpy.types.RenderEngine):
@@ -860,54 +860,66 @@ def createDefaultExportDirectories(pbrt_file, scene):
 def export_geometry(pbrt_file, scene):
     
     # We now export the mesh as pbrt's triangle meshes.
-    # I used the code here for reference:
-    # https://github.com/JerryCao1985/SORT/blob/ac6096c49288b95d954b0ea943b97134becdac9b/blender-plugin/2.78/sortblend/exporter/pbrt_exporter.py#L280
+    # Development documentation :
+    # https://docs.blender.org/api/current/bpy.types.MeshLoopTriangle.html
+    # https://wiki.blender.org/wiki/Reference/Release_Notes/2.80/Python_API/Mesh_API
+
     for object in scene.objects:
         print("exporting:")
         print(object.name)
 
         if object is not None and object.type != 'CAMERA' and object.type == 'MESH':
+            
+            # Going into edit mode first, then object mode seems to internally update the mesh.
+            # This is to prevent a bug where the indicies are messed up, need to be investigated more later on.
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.object.mode_set(mode='OBJECT')
+
             print('exporting object: ' + object.name)
             pbrt_file.write("AttributeBegin\n")
             pbrt_file.write( "Transform [" + matrixtostr( object.matrix_world.transposed() ) + "]\n" )
+            
             export_material(pbrt_file, object)
+            bpy.context.scene.update()
+            bpy.context.view_layer.update()
+
+            object.data.update()
             mesh = object.data
+
+            if not mesh.loop_triangles and mesh.polygons:
+                mesh.calc_loop_triangles()
+
             pbrt_file.write( "Shape \"trianglemesh\"\n")
 
             pbrt_file.write( '\"point P\" [\n' )
-            for vertex in mesh.vertices:
-                pbrt_file.write("%s %s %s\n" % (vertex.co.x, vertex.co.y, vertex.co.z))
+            for tri in mesh.loop_triangles:
+                for vert_index in tri.vertices:
+                    pbrt_file.write("%s %s %s\n" % (mesh.vertices[vert_index].co.x, mesh.vertices[vert_index].co.y, mesh.vertices[vert_index].co.z))
             pbrt_file.write( "]\n" )
             
-            pbrt_file.write( "\"normal N\" [\n" )
             mesh.calc_normals_split()
-            normals = [""] * len( mesh.vertices )
-            for poly in mesh.polygons:
-                for loop_index in poly.loop_indices:
-                    id = mesh.loops[loop_index].vertex_index
-                    normals[id] = ("%s %s %s\n" % (mesh.loops[loop_index].normal.x, mesh.loops[loop_index].normal.y, mesh.loops[loop_index].normal.z))
-                    
-            pbrt_file.write( " ".join( normals ) )
+            pbrt_file.write( "\"normal N\" [\n" )
+            for tri in mesh.loop_triangles:
+                for vert_index in tri.split_normals:
+                    pbrt_file.write("%s %s %s\n" % (vert_index[0],vert_index[1],vert_index[2]))
             pbrt_file.write( "]\n" )
-            uv_layer = mesh.uv_layers.active.data[:]
-
-            uvs = [""] * len( mesh.vertices )
+            
             pbrt_file.write( "\"float st\" [\n" )
-            for poly in mesh.polygons:
-                for loop_index in poly.loop_indices:
-                    id = mesh.loops[loop_index].vertex_index
-                    uv = uv_layer[loop_index].uv
-                    uvs[id] = " %f %f"%(uv[0],uv[1])
-            pbrt_file.write( " ".join( uvs ) )
+            for uv_layer in mesh.uv_layers:
+                for tri in mesh.loop_triangles:
+                    for loop_index in tri.loops:
+                        pbrt_file.write("%s %s \n" % (uv_layer.data[loop_index].uv[0], uv_layer.data[loop_index].uv[1]))
             pbrt_file.write( "]\n" )
 
             pbrt_file.write( "\"integer indices\" [\n" )
-            for p in mesh.polygons:
-                if len(p.vertices) == 3:
-                    pbrt_file.write( "%d %d %d " %( p.vertices[0] , p.vertices[1] , p.vertices[2] ) )
-                elif len(p.vertices) == 4:
-                    pbrt_file.write( "%d %d %d %d %d %d " % (p.vertices[0],p.vertices[1],p.vertices[2],p.vertices[0],p.vertices[2],p.vertices[3]))
+            faceIndex = 0
+            for tri in mesh.loop_triangles:
+                for vert_index in tri.vertices:
+                    pbrt_file.write("%s " % (faceIndex))
+                    faceIndex +=1
+                pbrt_file.write("\n")
             pbrt_file.write( "]\n" )
+                
             pbrt_file.write("AttributeEnd\n\n")
 
     return ''
