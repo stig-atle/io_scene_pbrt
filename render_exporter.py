@@ -792,6 +792,11 @@ def export_material(pbrt_file, object):
 
     #context = bpy.context
     #obj = context.object
+    print("Material slots:")
+    print(len(object.material_slots))
+    if len(object.material_slots) == 0:
+        print("no material on object")
+        return ''
 
     mat = object.data.materials[0]
     print ('Exporting material named: ',mat.name)
@@ -806,6 +811,7 @@ def export_material(pbrt_file, object):
 
 
     #Later we should loop through all 'slots' to write out all materials applied.
+
     mat = object.material_slots[0].material #Get the material from the material slot you want
     print ('Fetched material in slot 0 named: ',mat.name)
     if mat and mat.use_nodes: #if it is using nodes
