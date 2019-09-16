@@ -878,7 +878,7 @@ def export_geometry(pbrt_file, scene):
             
             # Going into edit mode first, then object mode seems to internally update the mesh.
             # This is to prevent a bug where the indicies are messed up, need to be investigated more later on.
-            bpy.ops.object.mode_set(mode='EDIT')
+            #bpy.ops.object.mode_set(mode='EDIT')
             bpy.ops.object.mode_set(mode='OBJECT')
 
             print('exporting object: ' + object.name)
@@ -886,7 +886,7 @@ def export_geometry(pbrt_file, scene):
             pbrt_file.write( "Transform [" + matrixtostr( object.matrix_world.transposed() ) + "]\n" )
             
             export_material(pbrt_file, object)
-            bpy.context.scene.update()
+            #bpy.context.scene.update()
             bpy.context.view_layer.update()
 
             object.data.update()
