@@ -7,6 +7,8 @@ https://stigatle.no/index.php/contact/
 Feel free to contribute on patreon if you want:
 https://www.patreon.com/stigatle
 
+Video tutorials on how to compile PBRT and how the use the addon is found here:
+https://www.youtube.com/watch?v=Bx6YKGteEB8&list=PLReF6vPz2ugrXbu9kWPiJp0l08xqp75p3&index=1
 
 This is a exporter for blender 2.8x that exports the scene into pbrt's ascii file format.
 The resulting files can then be rendered with PBRT renderer.
