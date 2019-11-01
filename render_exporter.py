@@ -160,6 +160,13 @@ def export_integrator(pbrt_file, scene):
     pbrt_file.write("\n")
     pbrt_file.write(r'"integer maxdepth" [%s]' % (bpy.data.scenes[0].maxdepth))
     pbrt_file.write("\n")
+    if scene.integrators == 'bdpt':
+        if scene.bdpt_visualizestrategies :
+            pbrt_file.write(r'"bool visualizestrategies" "true"')
+            pbrt_file.write("\n")
+        if scene.bdpt_visualizeweights :
+            pbrt_file.write(r'"bool visualizeweights" "true"')
+            pbrt_file.write("\n")
     return ''
 
 def export_LightSampleDistribution(pbrt_file, scene):

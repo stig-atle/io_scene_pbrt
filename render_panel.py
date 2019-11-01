@@ -36,7 +36,7 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         
         row.prop(scene, "exportpath")
 
-        layout.label(text="Output filename")
+        layout.label(text=" Render output filename")
         row = layout.row()
         row.prop(scene,"outputfilename")
 
@@ -63,6 +63,13 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
 
         row.prop(scene,"integrators")
         row.prop(scene,"maxdepth")
+        if scene.integrators == 'bdpt':
+            row = layout.row()
+            # Export example:
+            # "bool visualizestrategies" "true"
+            # "bool visualizeweights" "true"
+            row.prop(scene,"bdpt_visualizestrategies")
+            row.prop(scene,"bdpt_visualizeweights")
 
         layout.label(text="Sampler settings:")
         row = layout.row()
@@ -81,6 +88,12 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         layout.label(text="Export:")
         row = layout.row()
         layout.operator("scene.export", icon='MESH_CUBE', text="Export scene")
+        #print ("updating panel")
+        
+        
+
+
+        
 
 def register():
     #bpy.utils.register_class(PbrtRenderSettingsPanel)
@@ -124,3 +137,13 @@ def register():
     
     bpy.types.Scene.batch_frame_start = bpy.props.IntProperty(name = "Frame start", description = "Frame start", default = 1, min = 1, max = 9999999)
     bpy.types.Scene.batch_frame_end = bpy.props.IntProperty(name = "Frame end", description = "Frame end", default = 1, min = 1, max = 9999999)
+
+    bpy.types.Scene.bdpt_visualizestrategies = bpy.props.BoolProperty(
+    name="visualize strategies",
+    description="visualize strategies",
+    default = False)
+
+    bpy.types.Scene.bdpt_visualizeweights = bpy.props.BoolProperty(
+    name="visualize weights",
+    description="visualize weights",
+    default = False)
