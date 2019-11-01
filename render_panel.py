@@ -85,8 +85,6 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
             row = layout.row()
             row.prop(scene,"sppm_numiterations")
             row = layout.row()
-            row.prop(scene,"sppm_maxdepth")
-            row = layout.row()
             row.prop(scene,"sppm_photonsperiteration")
             row = layout.row()
             row.prop(scene,"sppm_imagewritefrequency")
@@ -178,7 +176,6 @@ def register():
     bpy.types.Scene.mlt_sigma = bpy.props.FloatProperty(name = "Sigma", description = "Sigma", default = 0.01, min = 0.001, max = 1)
 
     bpy.types.Scene.sppm_numiterations = bpy.props.IntProperty(name = "Num iterations", description = "Num iterations", default = 64, min = 1, max = 9999999)
-    bpy.types.Scene.sppm_maxdepth = bpy.props.IntProperty(name = "Max depth", description = "Max depth", default = 5, min = 1, max = 9999999)
     bpy.types.Scene.sppm_photonsperiteration = bpy.props.IntProperty(name = "Photons per iteration", description = "Photons per iteration", default = 1, min = 1, max = 9999999)
     bpy.types.Scene.sppm_imagewritefrequency = bpy.props.IntProperty(name = "Image write frequency", description = "Image write frequency", default = 1, min = 1, max = 31)
     bpy.types.Scene.sppm_radius = bpy.props.FloatProperty(name = "Radius", description = "Radius", default = 1.0, min = 0.001, max = 9999)

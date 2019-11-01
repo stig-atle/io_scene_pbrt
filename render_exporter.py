@@ -184,8 +184,6 @@ def export_integrator(pbrt_file, scene):
     if scene.integrators == 'sppm':
         pbrt_file.write(r'"integer numiterations" [%s]' % (bpy.data.scenes[0].sppm_numiterations))
         pbrt_file.write("\n")
-        pbrt_file.write(r'"integer maxdepth" [%s]' % (bpy.data.scenes[0].sppm_maxdepth))
-        pbrt_file.write("\n")
         pbrt_file.write(r'"integer photonsperiteration" [%s]' % (bpy.data.scenes[0].sppm_photonsperiteration))
         pbrt_file.write("\n")
         pbrt_file.write(r'"integer imagewritefrequency" [%s]' % (bpy.data.scenes[0].sppm_imagewritefrequency))
