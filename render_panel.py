@@ -63,10 +63,24 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
 
         row.prop(scene,"integrators")
         row.prop(scene,"maxdepth")
+        
         if scene.integrators == 'bdpt':
             row = layout.row()
             row.prop(scene,"bdpt_visualizestrategies")
             row.prop(scene,"bdpt_visualizeweights")
+        
+        if scene.integrators == 'mlt':
+            row = layout.row()
+            row.prop(scene,"mlt_bootstrapsamples")
+            row = layout.row()
+            row.prop(scene,"mlt_chains")
+            row = layout.row()
+            row.prop(scene,"mlt_mutationsperpixel")
+            row = layout.row()
+            row.prop(scene,"mlt_largestepprobability")
+            row = layout.row()
+            row.prop(scene,"mlt_sigma")
+
 
         layout.label(text="Sampler settings:")
         row = layout.row()
@@ -144,3 +158,9 @@ def register():
     name="visualize weights",
     description="visualize weights",
     default = False)
+
+    bpy.types.Scene.mlt_bootstrapsamples = bpy.props.IntProperty(name = "bootstrap samples", description = "bootstrap samples", default = 100000, min = 1, max = 9999999)
+    bpy.types.Scene.mlt_chains = bpy.props.IntProperty(name = "chains", description = "chains", default = 1000, min = 1, max = 9999999)
+    bpy.types.Scene.mlt_mutationsperpixel = bpy.props.IntProperty(name = "mutations per pixel", description = "mutations per pixel", default = 100, min = 1, max = 9999999)
+    bpy.types.Scene.mlt_largestepprobability = bpy.props.FloatProperty(name = "large step probability", description = "large step probability", default = 0.3, min = 0.001, max = 1)
+    bpy.types.Scene.mlt_sigma = bpy.props.FloatProperty(name = "Sigma", description = "Sigma", default = 0.01, min = 0.001, max = 1)

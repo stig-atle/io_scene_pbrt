@@ -160,6 +160,7 @@ def export_integrator(pbrt_file, scene):
     pbrt_file.write("\n")
     pbrt_file.write(r'"integer maxdepth" [%s]' % (bpy.data.scenes[0].maxdepth))
     pbrt_file.write("\n")
+
     if scene.integrators == 'bdpt':
         if scene.bdpt_visualizestrategies :
             pbrt_file.write(r'"bool visualizestrategies" "true"')
@@ -167,6 +168,20 @@ def export_integrator(pbrt_file, scene):
         if scene.bdpt_visualizeweights :
             pbrt_file.write(r'"bool visualizeweights" "true"')
             pbrt_file.write("\n")
+
+    if scene.integrators == 'mlt':
+        pbrt_file.write(r'"integer bootstrapsamples" [%s]' % (bpy.data.scenes[0].mlt_bootstrapsamples))
+        pbrt_file.write("\n")
+        pbrt_file.write(r'"integer chains" [%s]' % (bpy.data.scenes[0].mlt_chains))
+        pbrt_file.write("\n")
+        pbrt_file.write(r'"integer mutationsperpixel" [%s]' % (bpy.data.scenes[0].mlt_mutationsperpixel))
+        pbrt_file.write("\n")
+        pbrt_file.write(r'"float largestepprobability" [%s]' % (bpy.data.scenes[0].mlt_largestepprobability))
+        pbrt_file.write("\n")
+        pbrt_file.write(r'"float sigma" [%s]' % (bpy.data.scenes[0].mlt_sigma))
+        pbrt_file.write("\n")
+        
+
     return ''
 
 def export_LightSampleDistribution(pbrt_file, scene):
