@@ -65,9 +65,6 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         row.prop(scene,"maxdepth")
         if scene.integrators == 'bdpt':
             row = layout.row()
-            # Export example:
-            # "bool visualizestrategies" "true"
-            # "bool visualizeweights" "true"
             row.prop(scene,"bdpt_visualizestrategies")
             row.prop(scene,"bdpt_visualizeweights")
 
