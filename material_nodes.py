@@ -191,28 +191,82 @@ class PbrtDisney(Node, MyCustomTreeNode):
     def update_value(self, context):
         self.update ()
 
-    #Kr : bpy.props.FloatVectorProperty(name='Kr', description='Kr', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8))
-    #Kt : bpy.props.FloatVectorProperty(name='Kt', description='Kt', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8))
-    #uRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
-    #color : bpy.props.FloatVectorProperty(name='color', description='color', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8))
+    color : bpy.props.FloatVectorProperty(name='color', description='color', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8))
     metallic : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
-    eta : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
-    roughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
+    eta : bpy.props.FloatProperty(default=1.5, min=0.0, max=9999.0)
+    roughness : bpy.props.FloatProperty(default=0.5, min=0.0, max=9999.0)
     specularTint : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     anisotropic : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     sheen : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
-    sheenTint : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
+    sheenTint : bpy.props.FloatProperty(default=0.5, min=0.0, max=1.0)
     clearCoat : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
-    clearcoatGloss : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
+    clearCoatGloss : bpy.props.FloatProperty(default=1.0, min=0.0, max=1.0)
     specTrans : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
-    #scatterDistance : bpy.props.FloatVectorProperty(name='color', description='color', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8))
+    scatterDistance : bpy.props.FloatVectorProperty(name='color', description='color', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8))
     flatness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
-    diffTrans : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
+    diffTrans : bpy.props.FloatProperty(default=1.0, min=0.0, max=1.0)
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "color",text = 'color')
+        layout.prop(self, "metallic",text = 'metallic')
+        layout.prop(self, "eta",text = 'eta')
+        layout.prop(self, "roughness",text = 'roughness')
+        layout.prop(self, "specularTint",text = 'specularTint')
+        layout.prop(self, "anisotropic",text = 'anisotropic')
+        layout.prop(self, "sheen",text = 'sheen')
+        layout.prop(self, "sheenTint",text = 'sheenTint')
+        layout.prop(self, "clearCoat",text = 'clearCoat')
+        layout.prop(self, "clearCoatGloss",text = 'clearCoatGloss')
+        layout.prop(self, "specTrans",text = 'specTrans')
+        layout.prop(self, "scatterDistance",text = 'scatterDistance')
+        layout.prop(self, "flatness",text = 'flatness')
+        layout.prop(self, "diffTrans",text = 'diffTrans')
 
     def init(self, context):
         self.outputs.new('NodeSocketFloat', "Pbrt Disney")
-        self.inputs.new('NodeSocketColor', "color")
-        self.inputs.new('NodeSocketColor', "scatterDistance")
+
+        colorTexture_node = self.inputs.new('NodeSocketColor', "color texture")
+        colorTexture_node.hide_value = True
+
+        metallicTexture_node = self.inputs.new('NodeSocketColor', "Metallic texture")
+        metallicTexture_node.hide_value = True
+
+        etaTexture_node = self.inputs.new('NodeSocketColor', "Eta texture")
+        etaTexture_node.hide_value = True
+
+        roughnessTexture_node = self.inputs.new('NodeSocketColor', "Roughness texture")
+        roughnessTexture_node.hide_value = True
+
+        specularTintTexture_node = self.inputs.new('NodeSocketColor', "SpecularTint texture")
+        specularTintTexture_node.hide_value = True
+
+        anisotropicTexture_node = self.inputs.new('NodeSocketColor', "Anisotropic texture")
+        anisotropicTexture_node.hide_value = True
+
+        sheenTexture_node = self.inputs.new('NodeSocketColor', "Sheen texture")
+        sheenTexture_node.hide_value = True
+
+        sheenTintTexture_node = self.inputs.new('NodeSocketColor', "Sheen tint texture")
+        sheenTintTexture_node.hide_value = True
+
+        clearCoatTexture_node = self.inputs.new('NodeSocketColor', "Clear coat texture")
+        clearCoatTexture_node.hide_value = True
+
+        clearCoatGlossTexture_node = self.inputs.new('NodeSocketColor', "Clear cloat gloss texture")
+        clearCoatGlossTexture_node.hide_value = True
+
+        specTransTexture_node = self.inputs.new('NodeSocketColor', "Spec trans texture")
+        specTransTexture_node.hide_value = True
+
+        scatterDistanceTexture_node = self.inputs.new('NodeSocketColor', "Scatter distance texture")
+        scatterDistanceTexture_node.hide_value = True
+
+        flatnessTexture_node = self.inputs.new('NodeSocketColor', "Flatness texture")
+        flatnessTexture_node.hide_value = True
+        
+        diffTransTexture_node = self.inputs.new('NodeSocketColor', "Diff trans texture")
+        diffTransTexture_node.hide_value = True
+        
 
     def update(self):
         try:
@@ -223,24 +277,6 @@ class PbrtDisney(Node, MyCustomTreeNode):
         if can_continue:
             if out.is_linked:
                 print("continues in update rutine.")
-
-    # Additional buttons displayed on the node.
-    def draw_buttons(self, context, layout):
-        #layout.prop(self, "color",text = 'color')
-        layout.prop(self, "metallic",text = 'metallic')
-        layout.prop(self, "eta",text = 'eta')
-        layout.prop(self, "roughness",text = 'roughness')
-        layout.prop(self, "specularTint",text = 'specularTint')
-        layout.prop(self, "anisotropic",text = 'anisotropic')
-        layout.prop(self, "sheen",text = 'sheen')
-        layout.prop(self, "sheenTint",text = 'sheenTint')
-        layout.prop(self, "clearCoat",text = 'clearCoat')
-        layout.prop(self, "clearcoatGloss",text = 'clearcoatGloss')
-        layout.prop(self, "specTrans",text = 'specTrans')
-        #layout.prop(self, "scatterDistance",text = 'scatterDistance')
-        layout.prop(self, "flatness",text = 'flatness')
-        layout.prop(self, "diffTrans",text = 'diffTrans')
-        
 
     # Optional: custom label
     # Explicit user label overrides this, but here we can define a label dynamically.

@@ -109,15 +109,9 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         layout.label(text="Export:")
         row = layout.row()
         layout.operator("scene.export", icon='MESH_CUBE', text="Export scene")
-        #print ("updating panel")
-        
-        
-
-
-        
 
 def register():
-    #bpy.utils.register_class(PbrtRenderSettingsPanel)
+    
     bpy.types.Scene.exportpath = bpy.props.StringProperty(
         name="",
         description="Export folder",

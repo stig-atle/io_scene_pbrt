@@ -677,34 +677,99 @@ def export_pbrt_disney_material (pbrt_file, mat):
     print('Currently exporting Pbrt Disney material.')
     print (mat.name)
     nodes = mat.node_tree.nodes
+    colorTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[0],mat,False)
+    metallicTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[1],mat,True)
+    etaTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[2],mat,True)
+    roughnessTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[3],mat,True)
+    speculartintTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[4],mat,True)
+    anisotropicTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[5],mat,True)
+    sheenTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[6],mat,True)
+    sheenTintTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[7],mat,True)
+    clearCoatTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[8],mat,True)
+    clearCoatGlossTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[9],mat,True)
+    specTransTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[10],mat,True)
+    flatnessTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[11],mat,True)
+    diffTransTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[12],mat,True)
 
     pbrt_file.write(r'Material "disney"')
     pbrt_file.write("\n")
-    pbrt_file.write(r'"color color" [%s %s %s]' %(nodes["Pbrt Disney"].color.r, nodes["Pbrt Disney"].color.g, nodes["Pbrt Disney"].color.b))
+    
+    if (colorTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("color", colorTextureName))
+    else :    
+        pbrt_file.write(r'"color color" [%s %s %s]' %(nodes["Pbrt Disney"].color.r, nodes["Pbrt Disney"].color.g, nodes["Pbrt Disney"].color.b))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float metallic" [%s]' %(nodes["Pbrt Disney"].metallic))
+
+    if (metallicTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("metallic", metallicTextureName))
+    else :
+        pbrt_file.write(r'"float metallic" [%s]' %(nodes["Pbrt Disney"].metallic))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float eta" [%s]' %(nodes["Pbrt Disney"].eta))
+
+    if (etaTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("eta", etaTextureName))
+    else :
+        pbrt_file.write(r'"float eta" [%s]' %(nodes["Pbrt Disney"].eta))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float roughness" [%s]' %(nodes["Pbrt Disney"].roughness))
+
+    if (roughnessTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("roughness", roughnessTextureName))
+    else :
+        pbrt_file.write(r'"float roughness" [%s]' %(nodes["Pbrt Disney"].roughness))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float speculartint" [%s]' %(nodes["Pbrt Disney"].specularTint))
+    
+    if (speculartintTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("speculartint", speculartintTextureName))
+    else :
+        pbrt_file.write(r'"float speculartint" [%s]' %(nodes["Pbrt Disney"].specularTint))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float anisotropic" [%s]' %(nodes["Pbrt Disney"].anisotropic))
+    
+    if (anisotropicTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("anisotropic", anisotropicTextureName))
+    else :
+        pbrt_file.write(r'"float anisotropic" [%s]' %(nodes["Pbrt Disney"].anisotropic))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float sheen" [%s]' %(nodes["Pbrt Disney"].sheen))
+
+    if (sheenTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("sheen", sheenTextureName))
+    else :
+        pbrt_file.write(r'"float sheen" [%s]' %(nodes["Pbrt Disney"].sheen))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float sheentint" [%s]' %(nodes["Pbrt Disney"].sheenTint))
+
+    if (sheenTintTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("sheentint", sheenTintTextureName))
+    else :
+        pbrt_file.write(r'"float sheentint" [%s]' %(nodes["Pbrt Disney"].sheenTint))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float clearcoat" [%s]' %(nodes["Pbrt Disney"].clearCoat))
+    
+    if (clearCoatTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("clearcoat", clearCoatTextureName))
+    else :
+        pbrt_file.write(r'"float clearcoat" [%s]' %(nodes["Pbrt Disney"].clearCoat))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float clearcoatgloss" [%s]' %(nodes["Pbrt Disney"].clearcoatGloss))
+
+    if (clearCoatGlossTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("clearcoatgloss", clearCoatGlossTextureName))
+    else :
+        pbrt_file.write(r'"float clearcoatgloss" [%s]' %(nodes["Pbrt Disney"].clearCoatGloss))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float spectrans" [%s]' %(nodes["Pbrt Disney"].specTrans))
+
+    if (specTransTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("spectrans", specTransTextureName))
+    else :
+        pbrt_file.write(r'"float spectrans" [%s]' %(nodes["Pbrt Disney"].specTrans))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float flatness" [%s]' %(nodes["Pbrt Disney"].flatness))
+
+    if (flatnessTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("flatness", flatnessTextureName))
+    else :
+        pbrt_file.write(r'"float flatness" [%s]' %(nodes["Pbrt Disney"].flatness))
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float difftrans" [%s]' %(nodes["Pbrt Disney"].diffTrans))
+    
+    if (diffTransTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("difftrans", diffTransTextureName))
+    else :
+        pbrt_file.write(r'"float difftrans" [%s]' %(nodes["Pbrt Disney"].diffTrans))
     pbrt_file.write("\n")
 
     #TODO: scatter distance causes crash for some stupid reason.
