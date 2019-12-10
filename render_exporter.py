@@ -363,12 +363,11 @@ def export_pbrt_matte_material (pbrt_file, mat):
     pbrt_file.write("\n")
     pbrt_file.write(r'"float sigma" [%s]' %(nodes["Pbrt Matte"].Sigma))
     pbrt_file.write("\n")
-
     
     if kdTextureName != "" :
        pbrt_file.write(r'"texture %s" "%s"' % ("Kd", kdTextureName))
     else:
-        pbrt_file.write(r'"color Kd" [ %s %s %s]' %(nodes["Pbrt Matte"].inputs[0].default_value[0],nodes["Pbrt Matte"].inputs[0].default_value[1],nodes["Pbrt Matte"].inputs[0].default_value[2]))
+        pbrt_file.write(r'"color Kd" [ %s %s %s]' %(nodes["Pbrt Matte"].Kd[0],nodes["Pbrt Matte"].Kd[1],nodes["Pbrt Matte"].Kd[2]))
 
     pbrt_file.write("\n")
     return ''
@@ -385,8 +384,8 @@ def export_pbrt_mirror_material (pbrt_file, mat):
 
     if krTextureName != "":
        pbrt_file.write(r'"texture %s" "%s"' % ("Kr", krTextureName))
-    #else:
-        #pbrt_file.write(r'"color Kr" [ %s %s %s]' %(nodes["Pbrt mirror"].inputs[2].default_value[0],nodes["Pbrt mirror"].inputs[2].default_value[1],nodes["Pbrt mirror"].inputs[2].default_value[2]))
+    else:
+        pbrt_file.write(r'"color Kr" [ %s %s %s]' %(nodes["Pbrt Mirror"].Kr[0],nodes["Pbrt Mirror"].Kr[1],nodes["Pbrt Mirror"].Kr[2]))
     
     pbrt_file.write("\n")
     return ''
@@ -434,13 +433,13 @@ def export_pbrt_glass_material (pbrt_file, mat):
     if krTextureName != "":
        pbrt_file.write(r'"texture %s" "%s"' % ("Kr", krTextureName))
     else:
-        pbrt_file.write(r'"color Kr" [ %s %s %s]' %(nodes["Pbrt Glass"].inputs[2].default_value[0],nodes["Pbrt Glass"].inputs[2].default_value[1],nodes["Pbrt Glass"].inputs[2].default_value[2]))
+        pbrt_file.write(r'"color Kr" [ %s %s %s]' %(nodes["Pbrt Glass"].kr[0],nodes["Pbrt Glass"].kr[1],nodes["Pbrt Glass"].kr[2]))
     pbrt_file.write("\n")
     
     if ktTextureName != "":
        pbrt_file.write(r'"texture %s" "%s"' % ("Kt", ktTextureName))
     else:
-        pbrt_file.write(r'"color Kt" [ %s %s %s]' %(nodes["Pbrt Glass"].inputs[3].default_value[0],nodes["Pbrt Glass"].inputs[3].default_value[1],nodes["Pbrt Glass"].inputs[3].default_value[2]))
+        pbrt_file.write(r'"color Kt" [ %s %s %s]' %(nodes["Pbrt Glass"].kt[0],nodes["Pbrt Glass"].kt[1],nodes["Pbrt Glass"].kt[2]))
     pbrt_file.write("\n")
     
     if(uRoughnessTextureName != ""):
@@ -494,15 +493,18 @@ def export_pbrt_substrate_material (pbrt_file, mat):
     if (kdTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Kd", kdTextureName))
     else :
-        pbrt_file.write(r'"color Kd" [ %s %s %s]' %(nodes["Pbrt Substrate"].inputs[2].default_value[0],nodes["Pbrt Substrate"].inputs[2].default_value[1],nodes["Pbrt Substrate"].inputs[2].default_value[2]))
+        pbrt_file.write(r'"color Kd" [ %s %s %s]' %(nodes["Pbrt Substrate"].Kd[0],nodes["Pbrt Substrate"].Kd[1],nodes["Pbrt Substrate"].Kd[2]))
     pbrt_file.write("\n")
 
     if (ksTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Ks", ksTextureName))
     else :
-        pbrt_file.write(r'"color Ks" [ %s %s %s]' %(nodes["Pbrt Substrate"].inputs[3].default_value[0],nodes["Pbrt Substrate"].inputs[3].default_value[1],nodes["Pbrt Substrate"].inputs[3].default_value[2]))
+        pbrt_file.write(r'"color Ks" [ %s %s %s]' %(nodes["Pbrt Substrate"].Ks[0],nodes["Pbrt Substrate"].Ks[1],nodes["Pbrt Substrate"].Ks[2]))
     pbrt_file.write("\n")
     return ''
+
+
+#TODO: export sigma_a sigma_s texture and color
 
 def export_pbrt_subsurface_material (pbrt_file, mat):
     print('Currently exporting Pbrt Subsurface material.')
@@ -512,7 +514,10 @@ def export_pbrt_subsurface_material (pbrt_file, mat):
     uRoughnessTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Subsurface"].inputs[0],mat,True)
     vRoughnessTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Subsurface"].inputs[1],mat, True)
     krTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Subsurface"].inputs[2],mat,False)
-    ktTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Subsurface"].inputs[3],mat,False)    
+    ktTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Subsurface"].inputs[3],mat,False)
+
+    sigma_aTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Subsurface"].inputs[4],mat,False)
+    sigma_sTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Subsurface"].inputs[5],mat,False)
 
     pbrt_file.write(r'Material "subsurface"')
     pbrt_file.write("\n")
@@ -534,14 +539,23 @@ def export_pbrt_subsurface_material (pbrt_file, mat):
     if (krTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Kr", krTextureName))
     else :
-        pbrt_file.write(r'"color Kr" [ %s %s %s]' %(nodes["Pbrt Subsurface"].inputs[2].default_value[0],nodes["Pbrt Subsurface"].inputs[2].default_value[1],nodes["Pbrt Subsurface"].inputs[2].default_value[2]))
+        pbrt_file.write(r'"color Kr" [ %s %s %s]' %(nodes["Pbrt Subsurface"].kr[0],nodes["Pbrt Subsurface"].kr[1],nodes["Pbrt Subsurface"].kr[2]))
     pbrt_file.write("\n")
 
     if (ktTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Kt", ktTextureName))
     else :
-        pbrt_file.write(r'"color Kt" [ %s %s %s]' %(nodes["Pbrt Subsurface"].inputs[3].default_value[0],nodes["Pbrt Subsurface"].inputs[3].default_value[1],nodes["Pbrt Subsurface"].inputs[3].default_value[2]))
-    pbrt_file.write("\n")
+        pbrt_file.write(r'"color Kt" [ %s %s %s]' %(nodes["Pbrt Subsurface"].kt[0],nodes["Pbrt Subsurface"].kt[1],nodes["Pbrt Subsurface"].kt[2]))
+
+    if (sigma_aTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("Sigma_a", sigma_aTextureName))
+    else:
+        pbrt_file.write(r'"color sigma_a" [ %s %s %s]' %(nodes["Pbrt Subsurface"].sigma_a[0],nodes["Pbrt Subsurface"].sigma_a[1],nodes["Pbrt Subsurface"].sigma_a[2]))
+
+    if (sigma_sTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("Sigma_s", sigma_sTextureName))
+    else:
+        pbrt_file.write(r'"color sigma_s" [ %s %s %s]' %(nodes["Pbrt Subsurface"].sigma_s[0],nodes["Pbrt Subsurface"].sigma_s[1],nodes["Pbrt Subsurface"].sigma_a[2]))
     return ''
 
 def export_pbrt_uber_material (pbrt_file, mat):
@@ -555,29 +569,30 @@ def export_pbrt_uber_material (pbrt_file, mat):
     ktTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Uber"].inputs[3],mat,False)
     uRoughnessTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Uber"].inputs[4],mat,True)
     vRoughnessTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Uber"].inputs[5],mat, True)
+    opacityTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Uber"].inputs[6],mat, True)
 
     pbrt_file.write(r'Material "uber"')
     pbrt_file.write("\n")
     if (kdTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Kd", kdTextureName))
     else :
-        pbrt_file.write(r'"color Kd" [ %s %s %s]' %(nodes["Pbrt Uber"].inputs[0].default_value[0],nodes["Pbrt Uber"].inputs[0].default_value[1],nodes["Pbrt Uber"].inputs[0].default_value[2]))
+        pbrt_file.write(r'"color Kd" [ %s %s %s]' %(nodes["Pbrt Uber"].kd[0],nodes["Pbrt Uber"].kd[1],nodes["Pbrt Uber"].kd[2]))
     pbrt_file.write("\n")
 
     if (ksTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Ks", ksTextureName))
     else :
-        pbrt_file.write(r'"color Ks" [ %s %s %s]' %(nodes["Pbrt Uber"].inputs[1].default_value[0],nodes["Pbrt Uber"].inputs[1].default_value[1],nodes["Pbrt Uber"].inputs[1].default_value[2]))
+        pbrt_file.write(r'"color Ks" [ %s %s %s]' %(nodes["Pbrt Uber"].ks[0],nodes["Pbrt Uber"].ks[1],nodes["Pbrt Uber"].ks[2]))
     pbrt_file.write("\n")
     if (krTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Kr", krTextureName))
     else :
-        pbrt_file.write(r'"color Kr" [ %s %s %s]' %(nodes["Pbrt Uber"].inputs[2].default_value[0],nodes["Pbrt Uber"].inputs[2].default_value[1],nodes["Pbrt Uber"].inputs[2].default_value[2]))
+        pbrt_file.write(r'"color Kr" [ %s %s %s]' %(nodes["Pbrt Uber"].kr[0],nodes["Pbrt Uber"].kr[1],nodes["Pbrt Uber"].kr[2]))
     pbrt_file.write("\n")
     if (ktTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Kt", ktTextureName))
     else :
-        pbrt_file.write(r'"color Kt" [ %s %s %s]' %(nodes["Pbrt Uber"].inputs[3].default_value[0],nodes["Pbrt Uber"].inputs[3].default_value[1],nodes["Pbrt Uber"].inputs[3].default_value[2]))
+        pbrt_file.write(r'"color Kt" [ %s %s %s]' %(nodes["Pbrt Uber"].kt[0],nodes["Pbrt Uber"].kt[1],nodes["Pbrt Uber"].kt[2]))
     pbrt_file.write("\n")
     if(uRoughnessTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("uroughness", uRoughnessTextureName))
@@ -588,13 +603,14 @@ def export_pbrt_uber_material (pbrt_file, mat):
     if (vRoughnessTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("vroughness", vRoughnessTextureName))
     else:
-        pbrt_file.write(r'"float vroughness" [%s]'\
-        %(nodes["Pbrt Uber"].vRoughness))
+        pbrt_file.write(r'"float vroughness" [%s]' %(nodes["Pbrt Uber"].vRoughness))
     pbrt_file.write("\n")
     if nodes["Pbrt Uber"].eta != 0.0:
         pbrt_file.write(r'"float eta" [%s]' %(nodes["Pbrt Uber"].eta))
     pbrt_file.write("\n")
-
+    if (opacityTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("opacity", opacityTextureName))
+        pbrt_file.write("\n")
     return ''
 
 
@@ -605,6 +621,7 @@ def export_pbrt_plastic_material (pbrt_file, mat):
     
     kdTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Plastic"].inputs[0],mat,False)
     ksTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Plastic"].inputs[1],mat,False)
+    roughnessTextureName=export_texture_from_input(pbrt_file,nodes["Pbrt Plastic"].inputs[2],mat,True)
 
     pbrt_file.write(r'Material "plastic"')
     pbrt_file.write("\n")
@@ -612,16 +629,19 @@ def export_pbrt_plastic_material (pbrt_file, mat):
     if (kdTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Kd", kdTextureName))
     else :
-        pbrt_file.write(r'"color Kd" [ %s %s %s]' %(nodes["Pbrt Plastic"].inputs[0].default_value[0],nodes["Pbrt Plastic"].inputs[0].default_value[1],nodes["Pbrt Plastic"].inputs[0].default_value[2]))
+        pbrt_file.write(r'"color Kd" [ %s %s %s]' %(nodes["Pbrt Plastic"].Kd[0],nodes["Pbrt Plastic"].Kd[1],nodes["Pbrt Plastic"].Kd[2]))
     pbrt_file.write("\n")
 
     if (ksTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Ks", ksTextureName))
     else :
-        pbrt_file.write(r'"color Ks" [ %s %s %s]' %(nodes["Pbrt Plastic"].inputs[1].default_value[0],nodes["Pbrt Plastic"].inputs[1].default_value[1],nodes["Pbrt Plastic"].inputs[1].default_value[2]))
+        pbrt_file.write(r'"color Ks" [ %s %s %s]' %(nodes["Pbrt Plastic"].Ks[0],nodes["Pbrt Plastic"].Ks[1],nodes["Pbrt Plastic"].Ks[2]))
     pbrt_file.write("\n")
 
-    pbrt_file.write(r'"float roughness" [%s]' %(nodes["Pbrt Plastic"].Roughness))
+    if (roughnessTextureName != ""):
+        pbrt_file.write(r'"texture %s" "%s"' % ("Roughness", roughnessTextureName))
+    else:
+        pbrt_file.write(r'"float roughness" [%s]' %(nodes["Pbrt Plastic"].Roughness))
     pbrt_file.write("\n")
 
     return ''
@@ -642,13 +662,13 @@ def export_pbrt_metal_material (pbrt_file, mat):
     if (etaTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("eta", etaTextureName))
     else :
-        pbrt_file.write(r'"color eta" [ %s %s %s]' %(nodes["Pbrt Metal"].inputs[0].default_value[0],nodes["Pbrt Metal"].inputs[0].default_value[1],nodes["Pbrt Metal"].inputs[0].default_value[2]))
+        pbrt_file.write(r'"color eta" [ %s %s %s]' %(nodes["Pbrt Metal"].eta[0],nodes["Pbrt Metal"].eta[1],nodes["Pbrt Metal"].eta[2]))
     pbrt_file.write("\n")
 
     if (kTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("k", kTextureName))
     else :
-        pbrt_file.write(r'"color k" [ %s %s %s]' %(nodes["Pbrt Metal"].inputs[1].default_value[0],nodes["Pbrt Metal"].inputs[1].default_value[1],nodes["Pbrt Metal"].inputs[1].default_value[2]))
+        pbrt_file.write(r'"color k" [ %s %s %s]' %(nodes["Pbrt Metal"].kt[0],nodes["Pbrt Metal"].kt[1],nodes["Pbrt Metal"].kt[2]))
     pbrt_file.write("\n")
 
     pbrt_file.write(r'"float roughness" [%s]' %(nodes["Pbrt Metal"].roughness))
@@ -677,6 +697,7 @@ def export_pbrt_disney_material (pbrt_file, mat):
     print('Currently exporting Pbrt Disney material.')
     print (mat.name)
     nodes = mat.node_tree.nodes
+
     colorTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[0],mat,False)
     metallicTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[1],mat,True)
     etaTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Disney"].inputs[2],mat,True)
@@ -697,7 +718,7 @@ def export_pbrt_disney_material (pbrt_file, mat):
     if (colorTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("color", colorTextureName))
     else :    
-        pbrt_file.write(r'"color color" [%s %s %s]' %(nodes["Pbrt Disney"].color.r, nodes["Pbrt Disney"].color.g, nodes["Pbrt Disney"].color.b))
+        pbrt_file.write(r'"color color" [%s %s %s]' %(nodes["Pbrt Disney"].color[0], nodes["Pbrt Disney"].color[1], nodes["Pbrt Disney"].color[2]))
     pbrt_file.write("\n")
 
     if (metallicTextureName != ""):
@@ -943,6 +964,10 @@ def export_material(pbrt_file, object):
 
         if mat.node_tree.nodes[1].name == 'Pbrt BlackBody':
             export_pbrt_blackbody_material(pbrt_file,mat)
+
+        if mat.node_tree.nodes[1].name == 'Pbrt Mirror':
+            export_pbrt_mirror_material(pbrt_file,mat)
+
 
     return''
 

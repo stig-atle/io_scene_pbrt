@@ -9,6 +9,7 @@ from nodeitems_utils import (
     NodeItemCustom,
 )
 
+
 #nodecategory begin
 class MyNodeCategory(NodeCategory):
     @classmethod
@@ -64,38 +65,26 @@ class PbrtMatte(Node, MyCustomTreeNode):
     bl_label = 'Pbrt Matte'
     bl_icon = 'INFO'
 
-    def update_value(self, context):
-        #self.outputs["Pbrt Matte"].default_value = self.some_value
-        self.update ()
+    def updateViewportColor(self,context):
+        obj = bpy.context.active_object
+        mesh = bpy.context.active_object.data
+        for f in mesh.polygons:
+            slot = obj.material_slots[f.material_index]
+            mat = slot.material
+            if mat is not None:
+                mat.diffuse_color = self.Kd
 
     Sigma : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
-
+    Kd : bpy.props.FloatVectorProperty(name="Kd", description="Kd",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
+    
     def init(self, context):
         self.outputs.new('NodeSocketFloat', "Pbrt Matte")
-        self.inputs.new('NodeSocketColor', "Kd")
-        
-    def update(self):
-        print('Updating matte props..')
-        try:
-            #this.diffuse_color = this.Kd
-            #out = self.outputs["Pbrt Matte"]
-            can_continue = True
-        except:
-            can_continue = False
-        if can_continue:
-            print("continues in update rutine.")
-            #if out.is_linked:
-                # I am an ouput node that is linked, try to update my link.
-            #    for o in out.links:
-            #        if o.is_valid:
-            #            o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Pbrt Matte"].default_value   #self.some_value
+        KdTexture_node = self.inputs.new('NodeSocketColor', "Kd Texture")
+        KdTexture_node.hide_value = True
 
     def draw_buttons(self, context, layout):
         layout.prop(self, "Sigma",text = 'Sigma')
-        #layout.prop(self, "Kd",text = 'Kd')
-    
-    def draw_buttons_ext(self, context, layout):
-        layout.prop(self, "Sigma",text = 'Sigma')
+        layout.prop(self, "Kd",text = 'Kd')
         
     def draw_label(self):
         return "Pbrt Matte"
@@ -105,16 +94,24 @@ class PbrtMirror(Node, MyCustomTreeNode):
     bl_label = 'Pbrt Mirror'
     bl_icon = 'INFO'
 
+    def updateViewportColor(self,context):
+        obj = bpy.context.active_object
+        mesh = bpy.context.active_object.data
+        for f in mesh.polygons:
+            slot = obj.material_slots[f.material_index]
+            mat = slot.material
+            if mat is not None:
+                mat.diffuse_color = self.Kr
+
     def update_value(self, context):
         self.update ()
 
-    #uRoughness = bpy.props.FloatProperty(name="uRoughness", default=0.0, min=0.0, max=1.0)
-    #vRoughness = bpy.props.FloatProperty(name="vRoughness", default=0.0, min=0.0, max=1.0)
+    Kr : bpy.props.FloatVectorProperty(name="Kr", description="Kr",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
     Index : bpy.props.FloatProperty(name="Index", default=1.333, min=0.0, max=100.0)
 
     def init(self, context):
-        self.inputs.new('NodeSocketColor', "Kr")
-		#should have bumpmap also
+        krTexture_node = self.inputs.new('NodeSocketColor', "kr texture")
+        krTexture_node.hide_value=True
         self.outputs.new('NodeSocketFloat', "Pbrt Mirror")
 
     def update(self):
@@ -128,8 +125,8 @@ class PbrtMirror(Node, MyCustomTreeNode):
                 print("continues in update rutine.")
 
     # Additional buttons displayed on the node.
-    #def draw_buttons(self, context, layout):
-        #layout.prop(self, "Index",text='Index')
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "Kr",text='Kr')
 
     # Optional: custom label
     # Explicit user label overrides this, but here we can define a label dynamically.
@@ -141,9 +138,19 @@ class PbrtGlass(Node, MyCustomTreeNode):
     bl_label = 'Pbrt Glass'
     bl_icon = 'INFO'
 
+    def updateViewportColor(self,context):
+        obj = bpy.context.active_object
+        mesh = bpy.context.active_object.data
+        for f in mesh.polygons:
+            slot = obj.material_slots[f.material_index]
+            mat = slot.material
+            if mat is not None:
+                mat.diffuse_color = self.kr
+
     def update_value(self, context):
         self.update ()
-
+    kr : bpy.props.FloatVectorProperty(name="Kr", description="Kr",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
+    kt : bpy.props.FloatVectorProperty(name="Kt", description="Kt",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4)
     uRoughness : bpy.props.FloatProperty(name="uRoughness", default=0.0, min=0.0, max=1.0)
     vRoughness : bpy.props.FloatProperty(name="vRoughness", default=0.0, min=0.0, max=1.0)
     Index : bpy.props.FloatProperty(name="Index", default=1.333, min=0.0, max=100.0)
@@ -153,8 +160,12 @@ class PbrtGlass(Node, MyCustomTreeNode):
         uRoughnessTexture_node.hide_value = True
         vRoughnessTexture_node = self.inputs.new('NodeSocketColor', "v roughness texture")
         vRoughnessTexture_node.hide_value = True
-        self.inputs.new('NodeSocketColor', "Kr")
-        self.inputs.new('NodeSocketColor', "Kt")
+        #self.inputs.new('NodeSocketColor', "Kr")
+        #self.inputs.new('NodeSocketColor', "Kt")
+        krTexture_node = self.inputs.new('NodeSocketColor', "kr texture")
+        krTexture_node.hide_value=True
+        ktTexture_node = self.inputs.new('NodeSocketColor', "kt texture")
+        ktTexture_node.hide_value=True
         self.outputs.new('NodeSocketFloat', "Pbrt Glass")
         
         medium_node = self.inputs.new('NodeSocketColor', "medium")
@@ -173,6 +184,8 @@ class PbrtGlass(Node, MyCustomTreeNode):
 
     # Additional buttons displayed on the node.
     def draw_buttons(self, context, layout):
+        layout.prop(self, "kr",text = 'kr')
+        layout.prop(self, "kt",text = 'kt')
         layout.prop(self, "Index",text='Index')
         layout.prop(self, "uRoughness",text = 'uRoughness')
         layout.prop(self, "vRoughness",text = 'vRoughness')
@@ -188,10 +201,19 @@ class PbrtDisney(Node, MyCustomTreeNode):
     bl_label = 'Pbrt Disney'
     bl_icon = 'INFO'
 
+    def updateViewportColor(self,context):
+        obj = bpy.context.active_object
+        mesh = bpy.context.active_object.data
+        for f in mesh.polygons:
+            slot = obj.material_slots[f.material_index]
+            mat = slot.material
+            if mat is not None:
+                mat.diffuse_color = self.color
+
     def update_value(self, context):
         self.update ()
-
-    color : bpy.props.FloatVectorProperty(name='color', description='color', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8))
+    color : bpy.props.FloatVectorProperty(name="color", description="color",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
+    #color : bpy.props.FloatVectorProperty(name='color', description='color', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8),update=updateViewportColor)
     metallic : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     eta : bpy.props.FloatProperty(default=1.5, min=0.0, max=9999.0)
     roughness : bpy.props.FloatProperty(default=0.5, min=0.0, max=9999.0)
@@ -289,24 +311,36 @@ class PbrtMetal(Node, MyCustomTreeNode):
     bl_icon = 'INFO'
     def update_value(self, context):
         self.update ()
-        
-    #color_eta : bpy.props.FloatVectorProperty(name='color', description='color', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8))
-    #color : bpy.props.FloatVectorProperty(name='color', description='color', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8))
+    
+    def updateViewportColor(self,context):
+        obj = bpy.context.active_object
+        mesh = bpy.context.active_object.data
+        for f in mesh.polygons:
+            slot = obj.material_slots[f.material_index]
+            mat = slot.material
+            if mat is not None:
+                mat.diffuse_color = self.kt
+
     roughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     uRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     vRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     bump : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
-    
+    kt : bpy.props.FloatVectorProperty(name="Kt", description="Kt",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
+    eta : bpy.props.FloatVectorProperty(name="Eta", description="Eta",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4)
+
     def init(self, context):
         self.outputs.new('NodeSocketFloat', "Pbrt Metal")
-        color_eta = self.inputs.new('NodeSocketColor', "color_eta")
-        color_node = self.inputs.new('NodeSocketColor', "color")
+        etaTextureNode = self.inputs.new('NodeSocketColor', "Eta texture")
+        etaTextureNode.hide_value=True
+        kTexture_node = self.inputs.new('NodeSocketColor', "Kt texture")
+        kTexture_node.hide_value=True
         uRoughnessTexture_node = self.inputs.new('NodeSocketColor', "u roughness texture")
         uRoughnessTexture_node.hide_value=True
         vRoughnessTexture_node = self.inputs.new('NodeSocketColor', "v roughness texture")
         vRoughnessTexture_node.hide_value=True
         bumpTexture_node = self.inputs.new('NodeSocketColor', "bump texture")
         bumpTexture_node.hide_value=True
+
     def update(self):
         try:
             out = self.outputs["Pbrt Metal"]
@@ -316,10 +350,11 @@ class PbrtMetal(Node, MyCustomTreeNode):
         if can_continue:
             if out.is_linked:
                 print("continues in update rutine.")
+
     # Additional buttons displayed on the node.
     def draw_buttons(self, context, layout):
-        #layout.prop(self, "color_eta",text = 'color_eta')
-        #layout.prop(self, "color",text = 'color')
+        layout.prop(self, "kt",text = 'kt')
+        layout.prop(self, "eta",text = 'eta')
         layout.prop(self, "roughness",text = 'roughness')
         layout.prop(self, "uRoughness",text = 'uRoughness')
         layout.prop(self, "vRoughness",text = 'vRoughness')
@@ -335,9 +370,22 @@ class PbrtUber(Node, MyCustomTreeNode):
     bl_label = 'Pbrt Uber'
     bl_icon = 'INFO'
 
+    def updateViewportColor(self,context):
+        obj = bpy.context.active_object
+        mesh = bpy.context.active_object.data
+        for f in mesh.polygons:
+            slot = obj.material_slots[f.material_index]
+            mat = slot.material
+            if mat is not None:
+                mat.diffuse_color = self.kd
+
     def update_value(self, context):
         self.update ()
 
+    kd : bpy.props.FloatVectorProperty(name="Kd", description="Kd",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
+    ks : bpy.props.FloatVectorProperty(name="Ks", description="Ks",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4)
+    kr : bpy.props.FloatVectorProperty(name="Kr", description="Kr",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4)
+    kt : bpy.props.FloatVectorProperty(name="Kt", description="Kt",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4)
     roughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     uRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     vRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
@@ -345,10 +393,16 @@ class PbrtUber(Node, MyCustomTreeNode):
 
     def init(self, context):
         self.outputs.new('NodeSocketFloat', "Pbrt Uber")
-        self.inputs.new('NodeSocketColor', "Kd")
-        self.inputs.new('NodeSocketColor', "Ks")
-        self.inputs.new('NodeSocketColor', "Kr")
-        self.inputs.new('NodeSocketColor', "Kt")
+        kdTexture_node = self.inputs.new('NodeSocketColor', "kd texture")
+        kdTexture_node.hide_value=True
+        ksTexture_node = self.inputs.new('NodeSocketColor', "ks texture")
+        ksTexture_node.hide_value=True
+        krTexture_node = self.inputs.new('NodeSocketColor', "kr texture")
+        krTexture_node.hide_value=True
+        ktTexture_node = self.inputs.new('NodeSocketColor', "kt texture")
+        ktTexture_node.hide_value=True
+        opacityTexture_node = self.inputs.new('NodeSocketColor', "opacity texture")
+        opacityTexture_node.hide_value=True
         uRoughnessTexture_node = self.inputs.new('NodeSocketColor', "u roughness texture")
         uRoughnessTexture_node.hide_value=True
         vRoughnessTexture_node = self.inputs.new('NodeSocketColor', "v roughness texture")
@@ -366,6 +420,10 @@ class PbrtUber(Node, MyCustomTreeNode):
 
     # Additional buttons displayed on the node.
     def draw_buttons(self, context, layout):
+        layout.prop(self, "kd",text = 'kd')
+        layout.prop(self, "ks",text = 'ks')
+        layout.prop(self, "kr",text = 'kr')
+        layout.prop(self, "kt",text = 'kt')
         layout.prop(self, "roughness",text = 'roughness')
         layout.prop(self, "uRoughness",text = 'uRoughness')
         layout.prop(self, "vRoughness",text = 'vRoughness')
@@ -379,9 +437,22 @@ class PbrtSubsurface(Node, MyCustomTreeNode):
     bl_label = 'Pbrt Subsurface'
     bl_icon = 'INFO'
 
+    def updateViewportColor(self,context):
+        obj = bpy.context.active_object
+        mesh = bpy.context.active_object.data
+        for f in mesh.polygons:
+            slot = obj.material_slots[f.material_index]
+            mat = slot.material
+            if mat is not None:
+                mat.diffuse_color = self.kt
+
     def update_value(self, context):
         self.update ()
 
+    sigma_a : bpy.props.FloatVectorProperty(name="sigma_a", description="sigma_a",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4)
+    sigma_s : bpy.props.FloatVectorProperty(name="sigma_s", description="sigma_s",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4)
+    kr : bpy.props.FloatVectorProperty(name="Kr", description="Kr",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4)
+    kt : bpy.props.FloatVectorProperty(name="Kt", description="Kt",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
     uRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     vRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
 
@@ -389,10 +460,19 @@ class PbrtSubsurface(Node, MyCustomTreeNode):
         self.outputs.new('NodeSocketFloat', "Pbrt Subsurface")
         uRoughnessTexture_node = self.inputs.new('NodeSocketColor', "u roughness texture")
         uRoughnessTexture_node.hide_value=True
+
         vRoughnessTexture_node = self.inputs.new('NodeSocketColor', "v roughness texture")
         vRoughnessTexture_node.hide_value=True
-        self.inputs.new('NodeSocketColor', "Kr")
-        self.inputs.new('NodeSocketColor', "Kt")
+        
+        krTexture_node = self.inputs.new('NodeSocketColor', "kr texture")
+        krTexture_node.hide_value=True
+        ktTexture_node = self.inputs.new('NodeSocketColor', "kt texture")
+        ktTexture_node.hide_value=True
+
+        sigma_aTexture_node = self.inputs.new('NodeSocketColor', "sigma_a texture")
+        sigma_aTexture_node.hide_value=True
+        sigma_sTexture_node = self.inputs.new('NodeSocketColor', "sigma_s texture")
+        sigma_sTexture_node.hide_value=True
 
         
     def update(self):
@@ -408,6 +488,10 @@ class PbrtSubsurface(Node, MyCustomTreeNode):
     def draw_buttons(self, context, layout):
         layout.prop(self, "uRoughness",text = 'uRoughness')
         layout.prop(self, "vRoughness",text = 'vRoughness')
+        layout.prop(self, "kr",text = 'kr')
+        layout.prop(self, "kt",text = 'kt')
+        layout.prop(self, "sigma_a",text = 'sigma_a')
+        layout.prop(self, "sigma_s",text = 'sigma_s')
 
     def draw_label(self):
         return "Pbrt Subsurface"
@@ -417,9 +501,19 @@ class PbrtSubstrate(Node, MyCustomTreeNode):
     bl_label = 'Pbrt Substrate'
     bl_icon = 'INFO'
 
+    def updateViewportColor(self,context):
+        obj = bpy.context.active_object
+        mesh = bpy.context.active_object.data
+        for f in mesh.polygons:
+            slot = obj.material_slots[f.material_index]
+            mat = slot.material
+            if mat is not None:
+                mat.diffuse_color = self.Kd
+
     def update_value(self, context):
         self.update ()
-
+    Kd : bpy.props.FloatVectorProperty(name="kd", description="kd",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
+    Ks : bpy.props.FloatVectorProperty(name="ks", description="ks",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4)
     uRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     vRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
 
@@ -430,8 +524,10 @@ class PbrtSubstrate(Node, MyCustomTreeNode):
         uRoughnessTexture_node.hide_value=True
         vRoughnessTexture_node = self.inputs.new('NodeSocketColor', "v roughness texture")
         vRoughnessTexture_node.hide_value=True
-        self.inputs.new('NodeSocketColor', "Kd")
-        self.inputs.new('NodeSocketColor', "Ks")
+        kdTexture_node = self.inputs.new('NodeSocketColor', "kd texture")
+        kdTexture_node.hide_value=True
+        ksTexture_node = self.inputs.new('NodeSocketColor', "ks texture")
+        ksTexture_node.hide_value=True
         
     def update(self):
         try:
@@ -445,6 +541,8 @@ class PbrtSubstrate(Node, MyCustomTreeNode):
 
     # Additional buttons displayed on the node.
     def draw_buttons(self, context, layout):
+        layout.prop(self, "Kd",text = 'Kd')
+        layout.prop(self, "Ks",text = 'Ks')
         layout.prop(self, "uRoughness",text = 'uRoughness')
         layout.prop(self, "vRoughness",text = 'vRoughness')
 
@@ -458,18 +556,30 @@ class PbrtPlastic(Node, MyCustomTreeNode):
     bl_label = 'Pbrt Plastic'
     bl_icon = 'INFO'
 
+    def updateViewportColor(self,context):
+        obj = bpy.context.active_object
+        mesh = bpy.context.active_object.data
+        for f in mesh.polygons:
+            slot = obj.material_slots[f.material_index]
+            mat = slot.material
+            if mat is not None:
+                mat.diffuse_color = self.Kd
+
     def update_value(self, context):
         self.update ()
 
-
-    #Kd : bpy.props.FloatVectorProperty(name='color', description='color', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8))
-    #Ks : bpy.props.FloatVectorProperty(name='color', description='color', subtype='COLOR',  min=0.0, max=1.0, default=(0.8, 0.8, 0.8))
+    Kd : bpy.props.FloatVectorProperty(name="kd", description="kd",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
+    Ks : bpy.props.FloatVectorProperty(name="ks", description="ks",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4)
     Roughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
 
     def init(self, context):
         self.outputs.new('NodeSocketFloat', "Pbrt Plastic")
-        self.inputs.new('NodeSocketColor', "Kd")
-        self.inputs.new('NodeSocketColor', "Ks")
+        kdTexture_node = self.inputs.new('NodeSocketColor', "kd texture")
+        kdTexture_node.hide_value=True
+        ksTexture_node = self.inputs.new('NodeSocketColor', "ks texture")
+        ksTexture_node.hide_value=True
+        roughnessTexture_node = self.inputs.new('NodeSocketColor', "roughness texture")
+        roughnessTexture_node.hide_value=True
         
     def update(self):
         try:
@@ -483,8 +593,8 @@ class PbrtPlastic(Node, MyCustomTreeNode):
 
     # Additional buttons displayed on the node.
     def draw_buttons(self, context, layout):
-        #layout.prop(self, "Kd",text = 'Kd')
-        #layout.prop(self, "Ks",text = 'Ks')
+        layout.prop(self, "Kd",text = 'Kd')
+        layout.prop(self, "Ks",text = 'Ks')
         layout.prop(self, "Roughness",text = 'Roughness')
 
     # Optional: custom label
