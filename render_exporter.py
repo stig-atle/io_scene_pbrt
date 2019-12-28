@@ -426,6 +426,9 @@ def export_pbrt_glass_material (pbrt_file, mat):
     vRoughnessTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Glass"].inputs[1],mat, True)
 
     mediumNodeName = export_medium(pbrt_file,nodes["Pbrt Glass"].inputs[4],nodes)
+    if mediumNodeName is not None:
+        pbrt_file.write(r'MediumInterface "%s" ""' % (mediumNodeName))
+        pbrt_file.write("\n")
 
     pbrt_file.write(r'Material "glass"')
     pbrt_file.write("\n")
@@ -457,9 +460,6 @@ def export_pbrt_glass_material (pbrt_file, mat):
     pbrt_file.write(r'"float index" [%s]' %(nodes["Pbrt Glass"].Index))
     pbrt_file.write("\n")
 
-    if mediumNodeName is not None:
-        pbrt_file.write(r'MediumInterface "" "%s"' % (mediumNodeName))
-        pbrt_file.write("\n")
     return ''
 
 def export_pbrt_substrate_material (pbrt_file, mat):
@@ -519,7 +519,23 @@ def export_pbrt_subsurface_material (pbrt_file, mat):
     sigma_aTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Subsurface"].inputs[4],mat,False)
     sigma_sTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Subsurface"].inputs[5],mat,False)
 
+    mediumNodeName = export_medium(pbrt_file,nodes["Pbrt Subsurface"].inputs[6],nodes)
+
+    if mediumNodeName is not None:
+        pbrt_file.write(r'MediumInterface "%s" ""' % (mediumNodeName))
+        pbrt_file.write("\n")
+
     pbrt_file.write(r'Material "subsurface"')
+    pbrt_file.write("\n")
+    if (nodes["Pbrt Subsurface"].presetName != "None"):
+        pbrt_file.write(r'"string name" ["%s"]' % (nodes["Pbrt Subsurface"].presetName))
+        pbrt_file.write("\n")
+
+    pbrt_file.write(r'"float scale" [%s]'\
+    %(nodes["Pbrt Subsurface"].scale))
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"float eta" [%s]'\
+    %(nodes["Pbrt Subsurface"].eta))
     pbrt_file.write("\n")
 
     if(uRoughnessTextureName != ""):
@@ -528,7 +544,6 @@ def export_pbrt_subsurface_material (pbrt_file, mat):
         pbrt_file.write(r'"float uroughness" [%s]'\
         %(nodes["Pbrt Subsurface"].uRoughness))
     pbrt_file.write("\n")
-
     if (vRoughnessTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("vroughness", vRoughnessTextureName))
     else:
@@ -539,23 +554,38 @@ def export_pbrt_subsurface_material (pbrt_file, mat):
     if (krTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Kr", krTextureName))
     else :
-        pbrt_file.write(r'"color Kr" [ %s %s %s]' %(nodes["Pbrt Subsurface"].kr[0],nodes["Pbrt Subsurface"].kr[1],nodes["Pbrt Subsurface"].kr[2]))
+            if (nodes["Pbrt Subsurface"].presetName == "None"):
+                pbrt_file.write(r'"color Kr" [ %s %s %s]' %(nodes["Pbrt Subsurface"].kr[0],nodes["Pbrt Subsurface"].kr[1],nodes["Pbrt Subsurface"].kr[2]))
     pbrt_file.write("\n")
 
     if (ktTextureName != ""):
         pbrt_file.write(r'"texture %s" "%s"' % ("Kt", ktTextureName))
     else :
-        pbrt_file.write(r'"color Kt" [ %s %s %s]' %(nodes["Pbrt Subsurface"].kt[0],nodes["Pbrt Subsurface"].kt[1],nodes["Pbrt Subsurface"].kt[2]))
+            if (nodes["Pbrt Subsurface"].presetName == "None"):
+                pbrt_file.write(r'"color Kt" [ %s %s %s]' %(nodes["Pbrt Subsurface"].kt[0],nodes["Pbrt Subsurface"].kt[1],nodes["Pbrt Subsurface"].kt[2]))
+    pbrt_file.write("\n")
+    
+    if (nodes["Pbrt Subsurface"].presetName == "None"):
+        if (sigma_aTextureName != ""):
+            pbrt_file.write(r'"texture %s" "%s"' % ("Sigma_a", sigma_aTextureName))
+        else:
+            pbrt_file.write(r'"color sigma_a" [ %s %s %s]' %(nodes["Pbrt Subsurface"].sigma_a[0],nodes["Pbrt Subsurface"].sigma_a[1],nodes["Pbrt Subsurface"].sigma_a[2]))
+        pbrt_file.write("\n")
+        if (sigma_sTextureName != ""):
+            pbrt_file.write(r'"texture %s" "%s"' % ("Sigma_s", sigma_sTextureName))
+        else:
+            pbrt_file.write(r'"color sigma_s" [ %s %s %s]' %(nodes["Pbrt Subsurface"].sigma_s[0],nodes["Pbrt Subsurface"].sigma_s[1],nodes["Pbrt Subsurface"].sigma_a[2]))
+        pbrt_file.write("\n")
 
-    if (sigma_aTextureName != ""):
-        pbrt_file.write(r'"texture %s" "%s"' % ("Sigma_a", sigma_aTextureName))
-    else:
-        pbrt_file.write(r'"color sigma_a" [ %s %s %s]' %(nodes["Pbrt Subsurface"].sigma_a[0],nodes["Pbrt Subsurface"].sigma_a[1],nodes["Pbrt Subsurface"].sigma_a[2]))
+        if nodes["Pbrt Subsurface"].remaproughness == True :
+            pbrt_file.write(r'"bool remaproughness" "true"')
+            pbrt_file.write("\n")
+        else:
+            pbrt_file.write(r'"bool remaproughness" "false"')
+            pbrt_file.write("\n")
 
-    if (sigma_sTextureName != ""):
-        pbrt_file.write(r'"texture %s" "%s"' % ("Sigma_s", sigma_sTextureName))
-    else:
-        pbrt_file.write(r'"color sigma_s" [ %s %s %s]' %(nodes["Pbrt Subsurface"].sigma_s[0],nodes["Pbrt Subsurface"].sigma_s[1],nodes["Pbrt Subsurface"].sigma_a[2]))
+        
+
     return ''
 
 def export_pbrt_uber_material (pbrt_file, mat):

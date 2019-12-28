@@ -166,10 +166,9 @@ class PbrtGlass(Node, MyCustomTreeNode):
         krTexture_node.hide_value=True
         ktTexture_node = self.inputs.new('NodeSocketColor', "kt texture")
         ktTexture_node.hide_value=True
-        self.outputs.new('NodeSocketFloat', "Pbrt Glass")
-        
         medium_node = self.inputs.new('NodeSocketColor', "medium")
         medium_node.hide_value = True
+        self.outputs.new('NodeSocketFloat', "Pbrt Glass")
 
 
     def update(self):
@@ -455,7 +454,69 @@ class PbrtSubsurface(Node, MyCustomTreeNode):
     kt : bpy.props.FloatVectorProperty(name="Kt", description="Kt",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
     uRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     vRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
+    scale : bpy.props.FloatProperty(default=1.0, min=0.0001, max=99999.0)
+    eta : bpy.props.FloatProperty(default=1.0, min=0.0001, max=99999.0)
+    remaproughness : bpy.props.BoolProperty(
+    name="remaproughness",
+    description="remaproughness",
+    default = True)
 
+
+    presetName : bpy.props.EnumProperty(
+            name='Preset name',
+            description='Preset name',
+            items=[
+                ('None', 'None', ''),
+                ('Apple', 'Apple', ''),
+                ('Chicken1', 'Chicken1', ''),
+                ('Chicken2', 'Chicken2', ''),
+                ('Cream', 'Cream', ''),
+                ('Ketchup', 'Ketchup', ''),
+                ('Marble', 'Marble', ''),
+                ('Potato', 'Potato', ''),
+                ('Skimmilk', 'Skimmilk', ''),
+                ('Skin1', 'Skin1', ''),
+                ('Skin2', 'Skin2', ''),
+                ('Spectralon', 'Spectralon', ''),
+                ('Wholemilk', 'Wholemilk', ''),
+                ('Lowfat Milk', 'Lowfat Milk', ''),
+                ('Reduced Milk', 'Reduced Milk', ''),
+                ('Regular Milk', 'Regular Milk', ''),
+                ('Espresso', 'Espresso', ''),
+                ('Mint Mocha Coffee', 'Mint Mocha Coffee', ''),
+                ('Lowfat Soy Milk', 'Lowfat Soy Milk', ''),
+                ('Regular Soy Milk', 'Regular Soy Milk', ''),
+                ('Lowfat Chocolate Milk', 'Lowfat Chocolate Milk', ''),
+                ('Regular Chocolate Milk', 'Regular Chocolate Milk', ''),
+                ('Coke', 'Coke', ''),
+                ('Pepsi', 'Pepsi', ''),
+                ('Sprite', 'Sprite', ''),
+                ('Gatorade', 'Gatorade', ''),
+                ('Chardonnay', 'Chardonnay', ''),
+                ('White Zinfandel', 'White Zinfandel', ''),
+                ('Merlot', 'Merlot', ''),
+                ('Budweiser Beer', 'Budweiser Beer', ''),
+                ('Coors Light Beer', 'Coors Light Beer', ''),
+                ('Clorox', 'Clorox', ''),
+                ('Apple Juice', 'Apple Juice', ''),
+                ('Cranberry Juice', 'Cranberry Juice', ''),
+                ('Grape Juice', 'Grape Juice', ''),
+                ('Ruby Grapefruit Juice', 'Ruby Grapefruit Juice', ''),
+                ('White Grapefruit Juice', 'White Grapefruit Juice', ''),
+                ('Shampoo', 'Shampoo', ''),
+                ('Strawberry Shampoo', 'Strawberry Shampoo', ''),
+                ('Head & Shoulders Shampoo', 'Head & Shoulders Shampoo', ''),
+                ('Lemon Tea Powder', 'Lemon Tea Powder', ''),
+                ('Orange Powder', 'Orange Powder', ''),
+                ('Pink Lemonade Powder', 'Pink Lemonade Powder', ''),
+                ('Cappuccino Powder', 'Cappuccino Powder', ''),
+                ('Salt Powder', 'Salt Powder', ''),
+                ('Sugar Powder', 'Sugar Powder', ''),
+                ('Suisse Mocha Powder', 'Suisse Mocha Powder', ''),
+                ('Pacific Ocean Surface Water', 'Pacific Ocean Surface Water', '')
+            ],
+            default='None',
+        )
     def init(self, context):
         self.outputs.new('NodeSocketFloat', "Pbrt Subsurface")
         uRoughnessTexture_node = self.inputs.new('NodeSocketColor', "u roughness texture")
@@ -474,6 +535,8 @@ class PbrtSubsurface(Node, MyCustomTreeNode):
         sigma_sTexture_node = self.inputs.new('NodeSocketColor', "sigma_s texture")
         sigma_sTexture_node.hide_value=True
 
+        medium_node = self.inputs.new('NodeSocketColor', "medium")
+        medium_node.hide_value = True
         
     def update(self):
         try:
@@ -486,12 +549,16 @@ class PbrtSubsurface(Node, MyCustomTreeNode):
                 print("continues in update rutine.")
 
     def draw_buttons(self, context, layout):
+        layout.prop(self, "eta",text = 'eta')
+        layout.prop(self, "scale",text = 'scale')
         layout.prop(self, "uRoughness",text = 'uRoughness')
         layout.prop(self, "vRoughness",text = 'vRoughness')
+        layout.prop(self, "remaproughness",text = 'remaproughness')
         layout.prop(self, "kr",text = 'kr')
         layout.prop(self, "kt",text = 'kt')
         layout.prop(self, "sigma_a",text = 'sigma_a')
         layout.prop(self, "sigma_s",text = 'sigma_s')
+        layout.prop(self, "presetName", text = 'preset Name')
 
     def draw_label(self):
         return "Pbrt Subsurface"
