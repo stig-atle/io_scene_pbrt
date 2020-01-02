@@ -390,6 +390,32 @@ def export_pbrt_mirror_material (pbrt_file, mat):
     pbrt_file.write("\n")
     return ''
 
+def export_principled_bsdf_material(pbrt_file, mat):
+    print('Currently exporting principled_bsdf material, converting the material to pbrt disney on export.')
+    print (mat.name)
+    nodes = mat.node_tree.nodes
+    pbrt_file.write(r'Material "disney"')
+    pbrt_file.write("\n")
+    
+    pbrt_file.write(r'"color color" [%s %s %s]' %(nodes["Principled BSDF"].inputs[0].default_value[0], nodes["Principled BSDF"].inputs[0].default_value[1], nodes["Principled BSDF"].inputs[0].default_value[2]))
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"float metallic" [%s]' %(nodes["Principled BSDF"].inputs[4].default_value))
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"float speculartint" [%s]' %(nodes["Principled BSDF"].inputs[6].default_value))
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"float roughness" [%s]' %(nodes["Principled BSDF"].inputs[7].default_value))
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"float sheen" [%s]' %(nodes["Principled BSDF"].inputs[10].default_value))
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"float sheentint" [%s]' %(nodes["Principled BSDF"].inputs[11].default_value))
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"float clearcoat" [%s]' %(nodes["Principled BSDF"].inputs[12].default_value))
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"float difftrans" [%s]' %(nodes["Principled BSDF"].inputs[15].default_value))
+    pbrt_file.write("\n")
+
+    return ''
+
 def export_medium(pbrt_file, inputNode ,nodes):
     if inputNode is not None:
         mediumNode = nodes.get("Pbrt Medium")
@@ -998,6 +1024,8 @@ def export_material(pbrt_file, object):
         if mat.node_tree.nodes[1].name == 'Pbrt Mirror':
             export_pbrt_mirror_material(pbrt_file,mat)
 
+        if mat.node_tree.nodes[1].name == 'Principled BSDF':
+            export_principled_bsdf_material(pbrt_file,mat)
 
     return''
 
