@@ -35,6 +35,7 @@ node_categories = [
         NodeItem("CustomNodeTypePlastic"),
         NodeItem("CustomNodeTypeBlackBody"),
         NodeItem("CustomNodeTypeMedium"),
+        NodeItem("CustomNodeTypeTranslucent"),
         ]),
     ]
 
@@ -704,6 +705,55 @@ class PbrtBlackBody(Node, MyCustomTreeNode):
         
     def draw_label(self):
         return "Pbrt BlackBody"
+
+
+class PbrtTranslucent(Node, MyCustomTreeNode):
+    '''A custom node'''
+    bl_idname = 'CustomNodeTypeTranslucent'
+    bl_label = 'Pbrt Translucent'
+    bl_icon = 'INFO'
+
+    def updateViewportColor(self,context):
+        obj = bpy.context.active_object
+        mesh = bpy.context.active_object.data
+        for f in mesh.polygons:
+            slot = obj.material_slots[f.material_index]
+            mat = slot.material
+            if mat is not None:
+                mat.diffuse_color = self.Kd
+
+    Sigma : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
+    Kd : bpy.props.FloatVectorProperty(name="Kd", description="Kd",default=(0.25, 0.25, 0.25, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
+    Ks : bpy.props.FloatVectorProperty(name="Ks", description="Ks",default=(0.25, 0.25, 0.25, 1.0), min=0, max=1, subtype='COLOR', size=4)
+    Reflect : bpy.props.FloatVectorProperty(name="Reflect", description="Ks",default=(0.5, 0.5, 0.5, 1.0), min=0, max=1, subtype='COLOR', size=4)
+    Transmit : bpy.props.FloatVectorProperty(name="Transmit", description="Ks",default=(0.5, 0.5, 0.5, 1.0), min=0, max=1, subtype='COLOR', size=4)
+    Roughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
+    Remaproughness : bpy.props.BoolProperty(name="remaproughness", description="remaproughness", default = True)
+
+    def init(self, context):
+        self.outputs.new('NodeSocketFloat', "Pbrt Translucent")
+        KdTexture_node = self.inputs.new('NodeSocketColor', "Kd Texture")
+        KdTexture_node.hide_value = True
+        KsTexture_node = self.inputs.new('NodeSocketColor', "Ks Texture")
+        KsTexture_node.hide_value = True
+        ReflectTexture_node = self.inputs.new('NodeSocketColor', "Reflect Texture")
+        ReflectTexture_node.hide_value = True
+        TransmitTexture_node = self.inputs.new('NodeSocketColor', "Transmit Texture")
+        TransmitTexture_node.hide_value = True
+        RoughnessTexture_node = self.inputs.new('NodeSocketColor', "Roughness Texture")
+        RoughnessTexture_node.hide_value = True
+
+    def draw_buttons(self, context, layout):
+        layout.prop(self, "Sigma",text = 'Sigma')
+        layout.prop(self, "Kd",text = 'Kd')
+        layout.prop(self, "Ks",text = 'Ks')
+        layout.prop(self, "Reflect",text = 'Reflect')
+        layout.prop(self, "Transmit",text = 'Transmit')
+        layout.prop(self, "Roughness",text = 'Roughness')
+        layout.prop(self, "Remaproughness",text = 'Remaproughness')
+        
+    def draw_label(self):
+        return "Pbrt Translucent"
 
 class PbrtMedium(Node, MyCustomTreeNode):
     '''A custom node'''

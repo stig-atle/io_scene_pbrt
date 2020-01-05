@@ -416,6 +416,56 @@ def export_principled_bsdf_material(pbrt_file, mat):
 
     return ''
 
+def export_pbrt_translucent_material(pbrt_file, mat):
+    print('Currently exporting Pbrt Translucent material')
+    print (mat.name)
+
+    nodes = mat.node_tree.nodes
+    kdTextureName = ""
+    kdTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Translucent"].inputs[0],mat, False)
+    ksTextureName = ""
+    ksTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Translucent"].inputs[1],mat, False)
+    ReflectTextureName = ""
+    ReflectTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Translucent"].inputs[2],mat, False)
+    TransmitTextureName = ""
+    TransmitTextureName = export_texture_from_input(pbrt_file,nodes["Pbrt Translucent"].inputs[3],mat, False)
+    
+    pbrt_file.write(r'Material "translucent"')
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"float roughness" [%s]' %(nodes["Pbrt Translucent"].Roughness))
+    pbrt_file.write("\n")
+    
+    if kdTextureName != "" :
+       pbrt_file.write(r'"texture %s" "%s"' % ("Kd", kdTextureName))
+       pbrt_file.write("\n")
+    else:
+        pbrt_file.write(r'"color Kd" [ %s %s %s]' %(nodes["Pbrt Translucent"].Kd[0],nodes["Pbrt Translucent"].Kd[1],nodes["Pbrt Translucent"].Kd[2]))
+        pbrt_file.write("\n")
+    if ksTextureName != "" :
+       pbrt_file.write(r'"texture %s" "%s"' % ("Ks", ksTextureName))
+       pbrt_file.write("\n")
+    else:
+        pbrt_file.write(r'"color Ks" [ %s %s %s]' %(nodes["Pbrt Translucent"].Ks[0],nodes["Pbrt Translucent"].Ks[1],nodes["Pbrt Translucent"].Ks[2]))
+        pbrt_file.write("\n")
+    if ReflectTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("reflect", ReflectTextureName))
+        pbrt_file.write("\n")
+    else:
+        pbrt_file.write(r'"color reflect" [ %s %s %s]' %(nodes["Pbrt Translucent"].Reflect[0],nodes["Pbrt Translucent"].Reflect[1],nodes["Pbrt Translucent"].Reflect[2]))
+        pbrt_file.write("\n")
+    if TransmitTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("transmit", TransmitTextureName))
+        pbrt_file.write("\n")
+    else:
+        pbrt_file.write(r'"color transmit" [ %s %s %s]' %(nodes["Pbrt Translucent"].Transmit[0],nodes["Pbrt Translucent"].Transmit[1],nodes["Pbrt Translucent"].Transmit[2]))
+    if nodes["Pbrt Translucent"].Remaproughness == True :
+        pbrt_file.write(r'"bool remaproughness" "true"')
+        pbrt_file.write("\n")
+    else:
+        pbrt_file.write(r'"bool remaproughness" "false"')
+        pbrt_file.write("\n")
+    return ''
+
 def export_medium(pbrt_file, inputNode ,nodes):
     if inputNode is not None:
         mediumNode = nodes.get("Pbrt Medium")
@@ -1026,6 +1076,9 @@ def export_material(pbrt_file, object):
 
         if mat.node_tree.nodes[1].name == 'Principled BSDF':
             export_principled_bsdf_material(pbrt_file,mat)
+
+        if mat.node_tree.nodes[1].name == 'Pbrt Translucent':
+            export_pbrt_translucent_material(pbrt_file,mat)
 
     return''
 
