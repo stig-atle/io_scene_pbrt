@@ -157,6 +157,19 @@ def export_film(pbrt_file, frameNumber):
     if bpy.data.scenes[0].filterType == 'gaussian':
         pbrt_file.write(r'"float alpha" [%s]' % (bpy.data.scenes[0].filter_alpha))
     pbrt_file.write("\n")
+    
+    pbrt_file.write(r'Accelerator "%s" ' % (bpy.data.scenes[0].accelerator))
+    pbrt_file.write("\n")
+    if  bpy.data.scenes[0].accelerator == 'kdtree':
+        pbrt_file.write('"integer intersectcost" [%s]\n' % (bpy.data.scenes['Scene'].kdtreeaccel_intersectcost))
+        pbrt_file.write('"integer traversalcost" [%s]\n' % (bpy.data.scenes['Scene'].kdtreeaccel_traversalcost))
+        pbrt_file.write('"float emptybonus" [%s]\n' % (bpy.data.scenes['Scene'].kdtreeaccel_emptybonus))
+        pbrt_file.write('"integer maxprims" [%s]\n' % (bpy.data.scenes['Scene'].kdtreeaccel_maxprims))
+        pbrt_file.write('"integer maxdepth" [%s]\n' % (bpy.data.scenes['Scene'].kdtreeaccel_maxdepth))
+    if bpy.data.scenes[0].accelerator == 'bvh':
+        pbrt_file.write(r'"string splitmethod" "%s"' % (bpy.data.scenes[0].splitmethod))
+        pbrt_file.write("\n")
+        pbrt_file.write('"integer maxnodeprims" [%s]\n' % (bpy.data.scenes['Scene'].maxnodeprims))
     return ''
 
 def export_sampler(pbrt_file):

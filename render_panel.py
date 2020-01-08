@@ -64,7 +64,7 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(scene,"filter_x_width")
         row.prop(scene,"filter_y_width")
-        
+
         if scene.filterType == 'sinc':
             row = layout.row()
             row.prop(scene,"filter_tau")
@@ -76,6 +76,26 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
             row = layout.row()
             row.prop(scene,"filter_alpha")
         
+        layout.label(text="Accelerator settings:")
+        row = layout.row()
+        row.prop(scene,"accelerator")
+        row = layout.row()
+        if scene.accelerator == 'kdtree':
+            row = layout.row()
+            row.prop(scene,"kdtreeaccel_intersectcost")
+            row.prop(scene,"kdtreeaccel_traversalcost")
+            row = layout.row()
+            row.prop(scene,"kdtreeaccel_emptybonus")
+            row = layout.row()
+            row.prop(scene,"kdtreeaccel_maxprims")
+            row.prop(scene,"kdtreeaccel_maxdepth")
+        if scene.accelerator == 'bvh':
+            row = layout.row()
+            row.prop(scene,"splitmethod")
+            row = layout.row()
+            row.prop(scene,"maxnodeprims")
+
+            
         layout.label(text="Integrator settings:")
         row = layout.row()
 
@@ -201,3 +221,14 @@ def register():
     bpy.types.Scene.filter_c = bpy.props.FloatProperty(name = "c", description = "c", default = 3.0, min = 0.0, max = 999)
     bpy.types.Scene.filter_alpha = bpy.props.FloatProperty(name = "alpha", description = "alpha", default = 2.0, min = 0.0, max = 999)
 
+    accelerators = [("bvh", "bvh", "", 1), ("kdtree", "kdtree", "", 2)]
+    bpy.types.Scene.accelerator = bpy.props.EnumProperty(name = "accelerator", items=accelerators , default="bvh")
+    bpy.types.Scene.kdtreeaccel_intersectcost = bpy.props.IntProperty(name = "intersectcost", description = "intersectcost", default = 80, min = 0, max = 9999999)
+    bpy.types.Scene.kdtreeaccel_traversalcost = bpy.props.IntProperty(name = "traversalcost", description = "traversalcost", default = 1, min = 0, max = 9999999)
+    bpy.types.Scene.kdtreeaccel_emptybonus = bpy.props.FloatProperty(name = "emptybonus", description = "emptybonus", default = 0.5, min = 0.0, max = 9999999)
+    bpy.types.Scene.kdtreeaccel_maxprims = bpy.props.IntProperty(name = "maxprims", description = "maxprims", default = 1, min = 0, max = 9999999)
+    bpy.types.Scene.kdtreeaccel_maxdepth = bpy.props.IntProperty(name = "maxdepth", description = "maxdepth", default = -1, min = -9999999, max = 9999999)
+
+    splitmethods = [("sah", "sah", "", 1), ("hlbvh", "hlbvh", "", 2),("middle", "middle", "", 3),("equal", "equal", "", 4)]
+    bpy.types.Scene.splitmethod = bpy.props.EnumProperty(name = "split method", items=splitmethods , default="sah")
+    bpy.types.Scene.maxnodeprims =  bpy.props.IntProperty(name = "maxnodeprims", description = "maxnodeprims", default = 4, min = 0, max = 9999999)
