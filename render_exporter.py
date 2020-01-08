@@ -157,7 +157,7 @@ def export_film(pbrt_file, frameNumber):
     if bpy.data.scenes[0].filterType == 'gaussian':
         pbrt_file.write(r'"float alpha" [%s]' % (bpy.data.scenes[0].filter_alpha))
     pbrt_file.write("\n")
-    
+
     pbrt_file.write(r'Accelerator "%s" ' % (bpy.data.scenes[0].accelerator))
     pbrt_file.write("\n")
     if  bpy.data.scenes[0].accelerator == 'kdtree':
@@ -178,7 +178,6 @@ def export_sampler(pbrt_file):
     return ''
 
 def export_integrator(pbrt_file, scene):
-    #pbrt_file.write("Integrator path")
     pbrt_file.write(r'Integrator "%s"' % (bpy.data.scenes[0].integrators))
     pbrt_file.write("\n")
     pbrt_file.write(r'"integer maxdepth" [%s]' % (bpy.data.scenes[0].maxdepth))
