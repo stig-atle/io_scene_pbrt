@@ -147,6 +147,16 @@ def export_film(pbrt_file, frameNumber):
     finalFileName = outputFileName[0] + frameNumber  + outputFileName[1]
     pbrt_file.write(r'Film "image" "integer xresolution" [%s] "integer yresolution" [%s] "string filename" "%s"' % (bpy.data.scenes[0].resolution_x, bpy.data.scenes[0].resolution_y, finalFileName))
     pbrt_file.write("\n")
+
+    pbrt_file.write(r'PixelFilter "%s" "float xwidth" [%s] "float ywidth" [%s] ' % (bpy.data.scenes[0].filterType, bpy.data.scenes[0].filter_x_width, bpy.data.scenes[0].filter_y_width))
+    if bpy.data.scenes[0].filterType == 'sinc':
+        pbrt_file.write(r'"float tau" [%s]' % (bpy.data.scenes[0].filter_tau))
+    if bpy.data.scenes[0].filterType == 'mitchell':
+        pbrt_file.write(r'"float B" [%s]' % (bpy.data.scenes[0].filter_b))
+        pbrt_file.write(r'"float C" [%s]' % (bpy.data.scenes[0].filter_c))
+    if bpy.data.scenes[0].filterType == 'gaussian':
+        pbrt_file.write(r'"float alpha" [%s]' % (bpy.data.scenes[0].filter_alpha))
+    pbrt_file.write("\n")
     return ''
 
 def export_sampler(pbrt_file):

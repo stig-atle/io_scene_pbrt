@@ -58,6 +58,24 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         row.prop(scene, "resolution_x")
         row.prop(scene, "resolution_y")
        
+        layout.label(text="Filter settings:")
+        row = layout.row()
+        row.prop(scene,"filterType")
+        row = layout.row()
+        row.prop(scene,"filter_x_width")
+        row.prop(scene,"filter_y_width")
+        
+        if scene.filterType == 'sinc':
+            row = layout.row()
+            row.prop(scene,"filter_tau")
+        if scene.filterType == 'mitchell':
+            row = layout.row()
+            row.prop(scene,"filter_b")
+            row.prop(scene,"filter_c")
+        if scene.filterType == 'gaussian':
+            row = layout.row()
+            row.prop(scene,"filter_alpha")
+        
         layout.label(text="Integrator settings:")
         row = layout.row()
 
@@ -173,4 +191,13 @@ def register():
     bpy.types.Scene.sppm_photonsperiteration = bpy.props.IntProperty(name = "Photons per iteration", description = "Photons per iteration", default = 1, min = 1, max = 9999999)
     bpy.types.Scene.sppm_imagewritefrequency = bpy.props.IntProperty(name = "Image write frequency", description = "Image write frequency", default = 1, min = 1, max = 31)
     bpy.types.Scene.sppm_radius = bpy.props.FloatProperty(name = "Radius", description = "Radius", default = 1.0, min = 0.001, max = 9999)
+
+    filterTypes = [("box", "box", "", 1), ("gaussian", "gaussian", "", 2), ("mitchell", "mitchell", "", 3),("sinc", "sinc", "", 4),("triangle", "triangle", "", 5)]
+    bpy.types.Scene.filterType = bpy.props.EnumProperty(name = "filterType", items=filterTypes , default="box")
+    bpy.types.Scene.filter_x_width = bpy.props.FloatProperty(name = "x", description = "x", default = 0.5, min = 0.0, max = 999)
+    bpy.types.Scene.filter_y_width = bpy.props.FloatProperty(name = "y", description = "y", default = 0.5, min = 0.001, max = 999)
+    bpy.types.Scene.filter_tau = bpy.props.FloatProperty(name = "tau", description = "tau", default = 3.0, min = 0.001, max = 999)
+    bpy.types.Scene.filter_b = bpy.props.FloatProperty(name = "b", description = "b", default = 3.0, min = 0.0, max = 999)
+    bpy.types.Scene.filter_c = bpy.props.FloatProperty(name = "c", description = "c", default = 3.0, min = 0.0, max = 999)
+    bpy.types.Scene.filter_alpha = bpy.props.FloatProperty(name = "alpha", description = "alpha", default = 2.0, min = 0.0, max = 999)
 
