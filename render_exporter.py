@@ -173,8 +173,51 @@ def export_film(pbrt_file, frameNumber):
     return ''
 
 def export_sampler(pbrt_file):
-    pbrt_file.write(r'Sampler "halton" "integer pixelsamples" [%s]'% (bpy.data.scenes[0].spp))
+    pbrt_file.write(r'Sampler "%s"'% (bpy.data.scenes[0].sampler))
     pbrt_file.write("\n")
+
+    if bpy.data.scenes[0].sampler == 'halton':
+        pbrt_file.write(r'"integer pixelsamples" [%s]'% (bpy.data.scenes[0].spp))
+        pbrt_file.write("\n")
+        if bpy.data.scenes[0].samplepixelcenter:
+            pbrt_file.write(r'"bool samplepixelcenter" "true"')
+        else:
+            pbrt_file.write(r'"bool samplepixelcenter" "false"')
+        pbrt_file.write("\n")
+
+    if bpy.data.scenes[0].sampler == 'maxmin':
+        pbrt_file.write(r'"integer pixelsamples" [%s]'% (bpy.data.scenes[0].spp))
+        pbrt_file.write("\n")
+        pbrt_file.write(r'"integer dimensions" [%s]'% (bpy.data.scenes[0].dimension))
+        pbrt_file.write("\n")
+
+    if bpy.data.scenes[0].sampler == 'random':
+        pbrt_file.write(r'"integer pixelsamples" [%s]'% (bpy.data.scenes[0].spp))
+        pbrt_file.write("\n")
+
+    if bpy.data.scenes[0].sampler == 'sobol':
+        pbrt_file.write(r'"integer pixelsamples" [%s]'% (bpy.data.scenes[0].spp))
+        pbrt_file.write("\n")
+
+    if bpy.data.scenes[0].sampler == 'lowdiscrepancy':
+        pbrt_file.write(r'"integer pixelsamples" [%s]'% (bpy.data.scenes[0].spp))
+        pbrt_file.write("\n")
+        pbrt_file.write(r'"integer dimensions" [%s]'% (bpy.data.scenes[0].dimension))
+        pbrt_file.write("\n")
+
+    if bpy.data.scenes[0].sampler == 'stratified':
+        pbrt_file.write(r'"integer xsamples" [%s]'% (bpy.data.scenes[0].xsamples))
+        pbrt_file.write("\n")
+        pbrt_file.write(r'"integer ysamples" [%s]'% (bpy.data.scenes[0].ysamples))
+        pbrt_file.write("\n")
+        pbrt_file.write(r'"integer dimensions" [%s]'% (bpy.data.scenes[0].dimension))
+        pbrt_file.write("\n")
+        if bpy.data.scenes[0].jitter:
+            pbrt_file.write(r'"bool jitter" "true"')
+        else:
+            pbrt_file.write(r'"bool jitter" "false"')
+        pbrt_file.write("\n")
+
     return ''
 
 def export_integrator(pbrt_file, scene):

@@ -132,7 +132,28 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
 
         layout.label(text="Sampler settings:")
         row = layout.row()
-        row.prop(scene,"spp")
+        row.prop(scene,"sampler")
+        row = layout.row()
+        if scene.sampler == 'halton':
+            row.prop(scene,"spp")
+            row.prop(scene,"samplepixelcenter")
+        if scene.sampler == 'maxmindist':
+            row.prop(scene,"spp")
+            row.prop(scene,"dimension")
+        if scene.sampler == 'random':
+            row.prop(scene,"spp")
+        if scene.sampler == 'sobol':
+            row.prop(scene,"spp")
+        if scene.sampler == 'lowdiscrepancy':
+            row.prop(scene,"spp")
+            row.prop(scene,"dimension")
+        if scene.sampler == 'stratified':
+            row.prop(scene,"spp")
+            row.prop(scene,"dimension")
+            row = layout.row()
+            row.prop(scene,"xsamples")
+            row.prop(scene,"ysamples")
+            
 
         layout.label(text="Depth of field:")
         row = layout.row()
@@ -171,7 +192,7 @@ def register():
         maxlen=1024,
         subtype='FILE_NAME')
 
-    bpy.types.Scene.spp = bpy.props.IntProperty(name = "Halt at samples per pixel", description = "Set spp", default = 100, min = 1, max = 9999)
+    bpy.types.Scene.spp = bpy.props.IntProperty(name = "Samples per pixel", description = "Set spp", default = 100, min = 1, max = 9999)
     bpy.types.Scene.maxdepth = bpy.props.IntProperty(name = "Max depth", description = "Set max depth", default = 10, min = 1, max = 9999)
 
     integrators = [("path", "path", "", 1), ("volpath", "volpath", "", 2),("bdpt", "bdpt", "", 3),("mlt", "mlt", "", 4),("sppm", "sppm", "", 5)]
@@ -232,3 +253,11 @@ def register():
     splitmethods = [("sah", "sah", "", 1), ("hlbvh", "hlbvh", "", 2),("middle", "middle", "", 3),("equal", "equal", "", 4)]
     bpy.types.Scene.splitmethod = bpy.props.EnumProperty(name = "split method", items=splitmethods , default="sah")
     bpy.types.Scene.maxnodeprims =  bpy.props.IntProperty(name = "maxnodeprims", description = "maxnodeprims", default = 4, min = 0, max = 9999999)
+
+    samplers = [("halton", "halton", "", 1), ("maxmindist", "maxmindist", "", 2),("random", "random", "", 3),("sobol", "sobol", "", 4),("stratified", "stratified", "", 5),("lowdiscrepancy", "lowdiscrepancy", "", 6)]
+    bpy.types.Scene.sampler = bpy.props.EnumProperty(name = "Sampler", items=samplers , default="halton")
+    bpy.types.Scene.samplepixelcenter = bpy.props.BoolProperty(name="sample pixel center", description="sample pixel center", default = False)
+    bpy.types.Scene.dimension = bpy.props.IntProperty(name = "dimension", description = "dimension", default = 4, min = 0, max = 9999999)
+    bpy.types.Scene.jitter = bpy.props.BoolProperty(name="jitter", description="jitter", default = True)
+    bpy.types.Scene.xsamples = bpy.props.IntProperty(name = "xsamples", description = "xsamples", default = 4, min = 0, max = 9999999)
+    bpy.types.Scene.ysamples = bpy.props.IntProperty(name = "ysamples", description = "ysamples", default = 4, min = 0, max = 9999999)
