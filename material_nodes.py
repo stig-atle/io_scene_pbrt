@@ -14,10 +14,14 @@ from nodeitems_utils import (
 class MyNodeCategory(NodeCategory):
     @classmethod
     def poll(cls, context):
-        b = False
-        # Make your node appear in different node trees by adding their bl_idname type here.
-        if context.space_data.tree_type == 'ShaderNodeTree': b = True
-        return b
+        #Do not add the PBRT shader category if PBRT is not selected as renderer
+        engine = context.scene.render.engine
+        if engine != 'PBRT_Renderer':
+            return False
+        else:
+            b = False
+            if context.space_data.tree_type == 'ShaderNodeTree': b = True
+            return b
 
 # all categories in a list
 node_categories = [
