@@ -1076,7 +1076,7 @@ def exportTextureInSlot(pbrt_file,index,mat,slotname):
     return ''
 
 # Here we should check what material type is being exported.
-def export_material(pbrt_file, object):
+def export_material(pbrt_file, object, slotIndex):
     # https://blender.stackexchange.com/questions/51782/get-material-and-color-of-material-on-a-face-of-an-object-in-python
     # https://blender.stackexchange.com/questions/36587/how-to-define-customized-property-in-material
 
@@ -1088,7 +1088,7 @@ def export_material(pbrt_file, object):
         print("no material on object")
         return ''
 
-    mat = object.data.materials[0]
+    mat = object.data.materials[slotIndex]
     print ('Exporting material named: ',mat.name)
     #nodes = mat.node_tree.nodes
     global hastexture
@@ -1102,7 +1102,7 @@ def export_material(pbrt_file, object):
 
     #Later we should loop through all 'slots' to write out all materials applied.
 
-    mat = object.material_slots[0].material #Get the material from the material slot you want
+    mat = object.material_slots[slotIndex].material #Get the material from the material slot you want
     print ('Fetched material in slot 0 named: ',mat.name)
     if mat and mat.use_nodes: #if it is using nodes
         print('Mat name: ', mat.name)
@@ -1174,58 +1174,58 @@ def export_geometry(pbrt_file, scene):
         print(object.name)
 
         if object is not None and object.type != 'CAMERA' and object.type == 'MESH':
-            
-            # Going into edit mode first, then object mode seems to internally update the mesh.
-            # This is to prevent a bug where the indicies are messed up, need to be investigated more later on.
-            #bpy.ops.object.mode_set(mode='EDIT')
             bpy.ops.object.mode_set(mode='OBJECT')
-
             print('exporting object: ' + object.name)
-            pbrt_file.write("AttributeBegin\n")
-            pbrt_file.write( "Transform [" + matrixtostr( object.matrix_world.transposed() ) + "]\n" )
-            
-            export_material(pbrt_file, object)
-            #bpy.context.scene.update()
             bpy.context.view_layer.update()
-
             object.data.update()
             mesh = object.data
 
             if not mesh.loop_triangles and mesh.polygons:
                 mesh.calc_loop_triangles()
 
-            pbrt_file.write( "Shape \"trianglemesh\"\n")
+            for i in range(len(object.material_slots)):
+                pbrt_file.write("AttributeBegin\n")
+                pbrt_file.write( "Transform [" + matrixtostr( object.matrix_world.transposed() ) + "]\n" )
+                export_material(pbrt_file, object, i)
+                pbrt_file.write( "Shape \"trianglemesh\"\n")
 
-            pbrt_file.write( '\"point P\" [\n' )
-            for tri in mesh.loop_triangles:
-                for vert_index in tri.vertices:
-                    pbrt_file.write("%s %s %s\n" % (mesh.vertices[vert_index].co.x, mesh.vertices[vert_index].co.y, mesh.vertices[vert_index].co.z))
-            pbrt_file.write( "]\n" )
-            
-            mesh.calc_normals_split()
-            pbrt_file.write( "\"normal N\" [\n" )
-            for tri in mesh.loop_triangles:
-                for vert_index in tri.split_normals:
-                    pbrt_file.write("%s %s %s\n" % (vert_index[0],vert_index[1],vert_index[2]))
-            pbrt_file.write( "]\n" )
-            
-            pbrt_file.write( "\"float st\" [\n" )
-            for uv_layer in mesh.uv_layers:
+                # TODO: 
+                # The current way we loop through triangles is not optimized.
+                # This should be fixed by looping through once, then collect all
+                # faces\verts etc that belongs to slot X, then export each collection.
+                pbrt_file.write( '\"point P\" [\n' )
                 for tri in mesh.loop_triangles:
-                    for loop_index in tri.loops:
-                        pbrt_file.write("%s %s \n" % (uv_layer.data[loop_index].uv[0], uv_layer.data[loop_index].uv[1]))
-            pbrt_file.write( "]\n" )
-
-            pbrt_file.write( "\"integer indices\" [\n" )
-            faceIndex = 0
-            for tri in mesh.loop_triangles:
-                for vert_index in tri.vertices:
-                    pbrt_file.write("%s " % (faceIndex))
-                    faceIndex +=1
-                pbrt_file.write("\n")
-            pbrt_file.write( "]\n" )
+                    if tri.material_index == i:
+                        for vert_index in tri.vertices:
+                            pbrt_file.write("%s %s %s\n" % (mesh.vertices[vert_index].co.x, mesh.vertices[vert_index].co.y, mesh.vertices[vert_index].co.z))
+                pbrt_file.write( "]\n" )
                 
-            pbrt_file.write("AttributeEnd\n\n")
+                mesh.calc_normals_split()
+                pbrt_file.write( "\"normal N\" [\n" )
+                for tri in mesh.loop_triangles:
+                    if tri.material_index == i:
+                        for vert_index in tri.split_normals:
+                            pbrt_file.write("%s %s %s\n" % (vert_index[0],vert_index[1],vert_index[2]))
+                pbrt_file.write( "]\n" )
+                
+                pbrt_file.write( "\"float st\" [\n" )
+                for uv_layer in mesh.uv_layers:
+                    for tri in mesh.loop_triangles:
+                        if tri.material_index == i:
+                            for loop_index in tri.loops:
+                                pbrt_file.write("%s %s \n" % (uv_layer.data[loop_index].uv[0], uv_layer.data[loop_index].uv[1]))
+                pbrt_file.write( "]\n" )
+
+                pbrt_file.write( "\"integer indices\" [\n" )
+                faceIndex = 0
+                for tri in mesh.loop_triangles:
+                    if tri.material_index == i:
+                        for vert_index in tri.vertices:
+                            pbrt_file.write("%s " % (faceIndex))
+                            faceIndex +=1
+                pbrt_file.write("\n")
+                pbrt_file.write( "]\n" )
+                pbrt_file.write("AttributeEnd\n\n")
 
     return ''
 

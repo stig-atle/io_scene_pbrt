@@ -71,14 +71,10 @@ class PbrtMatte(Node, MyCustomTreeNode):
     bl_icon = 'INFO'
 
     def updateViewportColor(self,context):
-        obj = bpy.context.active_object
-        mesh = bpy.context.active_object.data
-        for f in mesh.polygons:
-            slot = obj.material_slots[f.material_index]
-            mat = slot.material
-            if mat is not None:
-                mat.diffuse_color = self.Kd
-
+        mat = bpy.context.active_object.active_material
+        if mat is not None:
+            bpy.data.materials[mat.name].diffuse_color=self.Kd
+        
     Sigma : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     Kd : bpy.props.FloatVectorProperty(name="Kd", description="Kd",default=(0.8, 0.8, 0.8, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
     
@@ -100,13 +96,9 @@ class PbrtMirror(Node, MyCustomTreeNode):
     bl_icon = 'INFO'
 
     def updateViewportColor(self,context):
-        obj = bpy.context.active_object
-        mesh = bpy.context.active_object.data
-        for f in mesh.polygons:
-            slot = obj.material_slots[f.material_index]
-            mat = slot.material
-            if mat is not None:
-                mat.diffuse_color = self.Kr
+        mat = bpy.context.active_object.active_material
+        if mat is not None:
+            bpy.data.materials[mat.name].diffuse_color=self.Kr
 
     def update_value(self, context):
         self.update ()
@@ -144,13 +136,9 @@ class PbrtGlass(Node, MyCustomTreeNode):
     bl_icon = 'INFO'
 
     def updateViewportColor(self,context):
-        obj = bpy.context.active_object
-        mesh = bpy.context.active_object.data
-        for f in mesh.polygons:
-            slot = obj.material_slots[f.material_index]
-            mat = slot.material
-            if mat is not None:
-                mat.diffuse_color = self.kr
+        mat = bpy.context.active_object.active_material
+        if mat is not None:
+            bpy.data.materials[mat.name].diffuse_color=self.kr
 
     def update_value(self, context):
         self.update ()
@@ -206,13 +194,9 @@ class PbrtDisney(Node, MyCustomTreeNode):
     bl_icon = 'INFO'
 
     def updateViewportColor(self,context):
-        obj = bpy.context.active_object
-        mesh = bpy.context.active_object.data
-        for f in mesh.polygons:
-            slot = obj.material_slots[f.material_index]
-            mat = slot.material
-            if mat is not None:
-                mat.diffuse_color = self.color
+        mat = bpy.context.active_object.active_material
+        if mat is not None:
+            bpy.data.materials[mat.name].diffuse_color=self.color
 
     def update_value(self, context):
         self.update ()
@@ -317,13 +301,9 @@ class PbrtMetal(Node, MyCustomTreeNode):
         self.update ()
     
     def updateViewportColor(self,context):
-        obj = bpy.context.active_object
-        mesh = bpy.context.active_object.data
-        for f in mesh.polygons:
-            slot = obj.material_slots[f.material_index]
-            mat = slot.material
-            if mat is not None:
-                mat.diffuse_color = self.kt
+        mat = bpy.context.active_object.active_material
+        if mat is not None:
+            bpy.data.materials[mat.name].diffuse_color=self.kt
 
     roughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     uRoughness : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
@@ -375,13 +355,9 @@ class PbrtUber(Node, MyCustomTreeNode):
     bl_icon = 'INFO'
 
     def updateViewportColor(self,context):
-        obj = bpy.context.active_object
-        mesh = bpy.context.active_object.data
-        for f in mesh.polygons:
-            slot = obj.material_slots[f.material_index]
-            mat = slot.material
-            if mat is not None:
-                mat.diffuse_color = self.kd
+        mat = bpy.context.active_object.active_material
+        if mat is not None:
+            bpy.data.materials[mat.name].diffuse_color=self.kd
 
     def update_value(self, context):
         self.update ()
@@ -442,13 +418,9 @@ class PbrtSubsurface(Node, MyCustomTreeNode):
     bl_icon = 'INFO'
 
     def updateViewportColor(self,context):
-        obj = bpy.context.active_object
-        mesh = bpy.context.active_object.data
-        for f in mesh.polygons:
-            slot = obj.material_slots[f.material_index]
-            mat = slot.material
-            if mat is not None:
-                mat.diffuse_color = self.kt
+        mat = bpy.context.active_object.active_material
+        if mat is not None:
+            bpy.data.materials[mat.name].diffuse_color=self.kt
 
     def update_value(self, context):
         self.update ()
@@ -574,13 +546,9 @@ class PbrtSubstrate(Node, MyCustomTreeNode):
     bl_icon = 'INFO'
 
     def updateViewportColor(self,context):
-        obj = bpy.context.active_object
-        mesh = bpy.context.active_object.data
-        for f in mesh.polygons:
-            slot = obj.material_slots[f.material_index]
-            mat = slot.material
-            if mat is not None:
-                mat.diffuse_color = self.Kd
+        mat = bpy.context.active_object.active_material
+        if mat is not None:
+            bpy.data.materials[mat.name].diffuse_color=self.Kd
 
     def update_value(self, context):
         self.update ()
@@ -629,13 +597,9 @@ class PbrtPlastic(Node, MyCustomTreeNode):
     bl_icon = 'INFO'
 
     def updateViewportColor(self,context):
-        obj = bpy.context.active_object
-        mesh = bpy.context.active_object.data
-        for f in mesh.polygons:
-            slot = obj.material_slots[f.material_index]
-            mat = slot.material
-            if mat is not None:
-                mat.diffuse_color = self.Kd
+        mat = bpy.context.active_object.active_material
+        if mat is not None:
+            bpy.data.materials[mat.name].diffuse_color=self.Kd
 
     def update_value(self, context):
         self.update ()
@@ -718,13 +682,9 @@ class PbrtTranslucent(Node, MyCustomTreeNode):
     bl_icon = 'INFO'
 
     def updateViewportColor(self,context):
-        obj = bpy.context.active_object
-        mesh = bpy.context.active_object.data
-        for f in mesh.polygons:
-            slot = obj.material_slots[f.material_index]
-            mat = slot.material
-            if mat is not None:
-                mat.diffuse_color = self.Kd
+        mat = bpy.context.active_object.active_material
+        if mat is not None:
+            bpy.data.materials[mat.name].diffuse_color=self.Kd
 
     Sigma : bpy.props.FloatProperty(default=0.0, min=0.0, max=1.0)
     Kd : bpy.props.FloatVectorProperty(name="Kd", description="Kd",default=(0.25, 0.25, 0.25, 1.0), min=0, max=1, subtype='COLOR', size=4,update=updateViewportColor)
