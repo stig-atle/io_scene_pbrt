@@ -129,7 +129,10 @@ def export_camera(pbrt_file):
                          up_point[0],up_point[1],up_point[2]))
 
         #https://blender.stackexchange.com/questions/14745/how-do-i-change-the-focal-length-of-a-camera-with-python
-        fov = bpy.data.cameras[0].angle * 180 / math.pi * bpy.data.scenes['Scene'].render.resolution_y / bpy.data.scenes['Scene'].render.resolution_x
+        # compute fov according to ratio and angle (Blender uses max angle whereas pbrt uses min angle)
+        ratio = bpy.data.scenes['Scene'].render.resolution_y / bpy.data.scenes['Scene'].render.resolution_x
+        angle_rad = bpy.data.cameras[0].angle 
+        fov = 2.0 * math.atan ( ratio * math.tan( angle_rad / 2.0 )) * 180.0 / math.pi 
         pbrt_file.write('Camera "perspective"\n')
         pbrt_file.write('"float fov" [%s]\n' % (fov))
 
