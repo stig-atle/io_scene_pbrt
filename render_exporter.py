@@ -54,13 +54,9 @@ def export_spot_lights(pbrt_file, scene):
             print('OB TYPE: ' + ob.type)
             if ob.type == "LIGHT" :
                 la = ob.data
-                print('LA TYPE: ' + la.type)
+                print('Light type: ' + la.type)
                 if la.type == "SPOT" :
-                    # Example:
-                    # LightSource "spot" "point from" [0 5 9] "point to" [-5 2.75 0] "blackbody I" [5500 125]
                     print('\n\nexporting light: ' + la.name + ' - type: ' + la.type)
-                    #spotmatrix = ob.matrix_world.copy()
-                    #matrixTransposed = spotmatrix.transposed()
                     from_point=ob.matrix_world.col[3]
                     at_point=ob.matrix_world.col[2]
                     at_point=at_point * -1
@@ -76,19 +72,19 @@ def export_spot_lights(pbrt_file, scene):
 
 def export_point_lights(pbrt_file, scene):
     for object in scene.objects:
-        if object is not None and object.type == 'POINT':
-            print('\n\nexporting lamp: ' + object.name + ' - type: ' + object.type)
-            print('\nExporting point light: ' + object.name)
-            bpy.ops.object.select_all(action='DESELECT')
-            bpy.context.scene.objects.active = object
-            pbrt_file.write("AttributeBegin")
-            pbrt_file.write("\n")
-            from_point=object.matrix_world.col[3]
-            pbrt_file.write("Translate\t%s %s %s\n" % (from_point.x, from_point.y, from_point.z))
-            pbrt_file.write("LightSource \"point\"\n\"rgb I\" [%s %s %s]\n" % (bpy.data.objects[object.name].color[0], bpy.data.objects[object.name].color[1], bpy.data.objects[object.name].color[2]))
-            #pbrt_file.write("LightSource \"point\"\n\"rgb I\" [%s %s %s]\n" % (nodes["Emission"].inputs[0].default_value[0], nodes["Emission"].inputs[0].default_value[1], nodes["Emission"].inputs[0].default_value[2]))
-            pbrt_file.write("AttributeEnd")
-            pbrt_file.write("\n\n")
+            if object.type == "LIGHT" :
+                la = object.data
+                print('Light type: ' + la.type)
+                if la.type == "POINT" :
+                    print('\n\nexporting lamp: ' + object.name + ' - type: ' + object.type)
+                    print('\nExporting point light: ' + object.name)
+                    pbrt_file.write("AttributeBegin")
+                    pbrt_file.write("\n")
+                    from_point=object.matrix_world.col[3]
+                    pbrt_file.write("Translate\t%s %s %s\n" % (from_point.x, from_point.y, from_point.z))
+                    pbrt_file.write("LightSource \"point\"\n\"rgb I\" [%s %s %s]\n" % (bpy.data.objects[object.name].color[0], bpy.data.objects[object.name].color[1], bpy.data.objects[object.name].color[2]))
+                    pbrt_file.write("AttributeEnd")
+                    pbrt_file.write("\n\n")
 
     return ''
 
