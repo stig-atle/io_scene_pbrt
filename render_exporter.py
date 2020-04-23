@@ -1177,8 +1177,9 @@ def export_geometry(pbrt_file, scene):
             print('exporting object: ' + object.name)
             bpy.context.view_layer.update()
             object.data.update()
-            mesh = object.data
-
+            dg = bpy.context.evaluated_depsgraph_get()
+            eval_obj = object.evaluated_get(dg)
+            mesh = eval_obj.to_mesh()
             if not mesh.loop_triangles and mesh.polygons:
                 mesh.calc_loop_triangles()
 
