@@ -1,7 +1,7 @@
 import bpy
 from . import render_exporter
 
-class ExportScene(bpy.types.Operator):
+class ExportPbrtScene(bpy.types.Operator):
     bl_idname = 'scene.export'
     bl_label = 'Export Scene'
     bl_options = {"REGISTER", "UNDO"}
