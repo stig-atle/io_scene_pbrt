@@ -27,7 +27,7 @@ class MyNodeCategory(NodeCategory):
 node_categories = [
     # identifier, label, items list
     #MyNodeCategory("SOMENODES", "PBRT", items=[
-    MyNodeCategory("SHADER", "PBRT", items=[
+    MyNodeCategory("PBRT_SHADER", "PBRT", items=[
         NodeItem("CustomNodeType"),
         NodeItem("CustomNodeTypeMirror"),
         NodeItem("CustomNodeTypeGlass"),
