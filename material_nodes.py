@@ -28,7 +28,7 @@ node_categories = [
     # identifier, label, items list
     #MyNodeCategory("SOMENODES", "PBRT", items=[
     MyNodeCategory("PBRT_SHADER", "PBRT", items=[
-        NodeItem("CustomNodeType"),
+        NodeItem("CustomNodeTypeMatte"),
         NodeItem("CustomNodeTypeMirror"),
         NodeItem("CustomNodeTypeGlass"),
         NodeItem("CustomNodeTypeDisney"),
@@ -66,7 +66,7 @@ class MyCustomTreeNode :
 # Derived from the Node base type.
 class PbrtMatte(Node, MyCustomTreeNode):
     '''A custom node'''
-    bl_idname = 'CustomNodeType'
+    bl_idname = 'CustomNodeTypeMatte'
     bl_label = 'Pbrt Matte'
     bl_icon = 'INFO'
 
