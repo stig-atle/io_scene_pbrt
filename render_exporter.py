@@ -442,6 +442,13 @@ def export_principled_bsdf_material(pbrt_file, mat):
 
     return ''
 
+def export_pbrt_emissive_material(pbrt_file, mat):
+    color = mat.inputs["Color"]
+    strength = mat.inputs["Strength"].default_value
+    pbrt_file.write(r'AreaLightSource "diffuse" "rgb L" [ {} {} {} ] '.format(color.default_value[0] * strength, color.default_value[1] * strength, color.default_value[2] * strength))
+    return ''
+
+
 def export_pbrt_translucent_material(pbrt_file, mat):
     print('Currently exporting Pbrt Translucent material')
     print (mat.name)
@@ -1043,6 +1050,8 @@ def export_material(pbrt_file, object, slotIndex):
         return ''
 
     mat = object.data.materials[slotIndex]
+    if mat == None:
+        return''
     print ('Exporting material named: ',mat.name)
 
     global hastexture
@@ -1097,6 +1106,8 @@ def export_material(pbrt_file, object, slotIndex):
                         #    export_medium(pbrt_file,curr)
                         if currentMaterial.bl_idname == 'CustomNodeTypeTranslucent':
                             export_pbrt_translucent_material(pbrt_file,currentMaterial)
+                        if currentMaterial.bl_idname == 'ShaderNodeEmission':
+                            export_pbrt_emissive_material(pbrt_file, currentMaterial)
 
     return''
 
@@ -1137,10 +1148,10 @@ def export_geometry(pbrt_file, scene):
             if not mesh.loop_triangles and mesh.polygons:
                 mesh.calc_loop_triangles()
 
-            for i in range(len(object.material_slots)):
+            for i in range(max(len(object.material_slots), 1)):
                 pbrt_file.write("AttributeBegin\n")
                 pbrt_file.write( "Transform [" + matrixtostr( object.matrix_world.transposed() ) + "]\n" )
-                export_material(pbrt_file, object, i)
+                if len(object.material_slots) != 0: export_material(pbrt_file, object, i)
                 pbrt_file.write( "Shape \"trianglemesh\"\n")
 
                 # TODO: 
