@@ -6,6 +6,7 @@ from math import *
 import mathutils
 from mathutils import Vector
 import shutil
+import struct
 
 # Simple wrapper on IO to handle indentation
 class PBRTWriter: 
@@ -32,6 +33,62 @@ class PBRTWriter:
     def close(self):
         self.file.close()
 
+def write_ply(file, mesh, indices, normals, i):
+
+    # Pack U,V
+    uvs = []
+    for uv_layer in mesh.uv_layers:
+        for tri in mesh.loop_triangles:
+            if tri.material_index == i:
+                for loop_index in tri.loops:
+                    uvs.append((
+                        uv_layer.data[loop_index].uv[0],
+                        uv_layer.data[loop_index].uv[1]
+                    ))
+
+    out = open(file, 'w')
+    out.write("ply\n")
+    out.write("format binary_little_endian 1.0\n")
+    out.write(f"element vertex {len(indices)}\n")
+    out.write("property float x\n")
+    out.write("property float y\n")
+    out.write("property float z\n")
+    out.write("property float nx\n")
+    out.write("property float ny\n")
+    out.write("property float nz\n")
+    # TODO: Check UV have same size than indices, normals
+    if len(uvs) != 0:
+        out.write("property float u\n")
+        out.write("property float v\n")
+    out.write(f"element face {len(indices) // 3}\n")
+    # TODO: Check size and switch to proper precision
+    out.write("property list uint int vertex_indices\n")
+    out.write("end_header\n")
+
+    # Now switch to binary writing
+    out.close()
+    out = open(file, "ab")
+    # Position & Normals & UVs
+    for (id,(id_vertex,n)) in enumerate(zip(indices, normals)):
+        out.write(struct.pack('<f', mesh.vertices[id_vertex].co.x))
+        out.write(struct.pack('<f', mesh.vertices[id_vertex].co.y))
+        out.write(struct.pack('<f', mesh.vertices[id_vertex].co.z))
+        
+        out.write(struct.pack('<f', n[0]))
+        out.write(struct.pack('<f', n[1]))
+        out.write(struct.pack('<f', n[2]))
+
+        if len(uvs) != 0:
+            out.write(struct.pack('<f', uvs[id][0]))
+            out.write(struct.pack('<f', uvs[id][1]))
+
+    # Indices
+    for i in range(0, len(indices), 3):
+        out.write(struct.pack('<I', 3))
+        out.write(struct.pack('<I', i))
+        out.write(struct.pack('<I', i+1))
+        out.write(struct.pack('<I', i+2))
+    out.close()
 
 #render engine custom begin
 class PBRTRenderEngine(bpy.types.RenderEngine):
@@ -1208,42 +1265,40 @@ def export_geometry(pbrt_file, scene, frameNumber):
                         print(objFolderPath)
                         os.makedirs(objFolderPath)
 
-                    objFilePath = objFolderPath + object.name + '.pbrt  ' 
-                    pbrt_file_obj = open(objFilePath, 'w')
-
                     # Include the file that will be created
-                    objFilePathRel = 'meshes/' + frameNumber + '/' + object.name + '.pbrt' 
-                    pbrt_file.write('Include "%s"\n' % objFilePathRel)
+                    objFilePath = objFolderPath + object.name + '.ply' 
+                    objFilePathRel = 'meshes/' + frameNumber + '/' + object.name + '.ply' 
+
+                    pbrt_file.write(f'Shape "plymesh" "string filename" ["{objFilePathRel}"]')
+                    write_ply(objFilePath, mesh, indices, normals, i)
                 else:
-                    pbrt_file_obj = pbrt_file
+                    pbrt_file.write( "Shape \"trianglemesh\"\n")
+                    pbrt_file.write( '\"point P\" [\n' )
+                    pbrt_file.write(" ".join([str(item) for id_vertex in indices 
+                                                            for item in [mesh.vertices[id_vertex].co.x, 
+                                                                        mesh.vertices[id_vertex].co.y, 
+                                                                        mesh.vertices[id_vertex].co.z]]))
+                    pbrt_file.write( "\n" )
+                    pbrt_file.write( "]\n" )
 
-                pbrt_file_obj.write( "Shape \"trianglemesh\"\n")
-                pbrt_file_obj.write( '\"point P\" [\n' )
-                pbrt_file_obj.write(" ".join([str(item) for id_vertex in indices 
-                                                        for item in [mesh.vertices[id_vertex].co.x, 
-                                                                    mesh.vertices[id_vertex].co.y, 
-                                                                    mesh.vertices[id_vertex].co.z]]))
-                pbrt_file_obj.write( "\n" )
-                pbrt_file_obj.write( "]\n" )
+                    pbrt_file.write( "\"normal N\" [\n" )
+                    pbrt_file.write(" ".join([str(item) for n in normals 
+                                                            for item in n]))
+                    pbrt_file.write( "\n" )
+                    pbrt_file.write( "]\n" )
 
-                pbrt_file_obj.write( "\"normal N\" [\n" )
-                pbrt_file_obj.write(" ".join([str(item) for n in normals 
-                                                        for item in n]))
-                pbrt_file_obj.write( "\n" )
-                pbrt_file_obj.write( "]\n" )
+                    
+                    pbrt_file.write( "\"float st\" [\n" )
+                    for uv_layer in mesh.uv_layers:
+                        for tri in mesh.loop_triangles:
+                            if tri.material_index == i:
+                                for loop_index in tri.loops:
+                                    pbrt_file.write("%s %s \n" % (uv_layer.data[loop_index].uv[0], uv_layer.data[loop_index].uv[1]))
+                    pbrt_file.write( "]\n" )
 
-                
-                pbrt_file_obj.write( "\"float st\" [\n" )
-                for uv_layer in mesh.uv_layers:
-                    for tri in mesh.loop_triangles:
-                        if tri.material_index == i:
-                            for loop_index in tri.loops:
-                                pbrt_file_obj.write("%s %s \n" % (uv_layer.data[loop_index].uv[0], uv_layer.data[loop_index].uv[1]))
-                pbrt_file_obj.write( "]\n" )
-
-                pbrt_file_obj.write( "\"integer indices\" [\n" )
-                pbrt_file_obj.write("%s \n" % " ".join([str(i) for i in range(len(indices))]))
-                pbrt_file_obj.write( "]\n" )
+                    pbrt_file.write( "\"integer indices\" [\n" )
+                    pbrt_file.write("%s \n" % " ".join([str(i) for i in range(len(indices))]))
+                    pbrt_file.write( "]\n" )
 
                 pbrt_file.attr_end()
                 pbrt_file.write("\n\n")
