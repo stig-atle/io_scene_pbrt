@@ -7,6 +7,32 @@ import mathutils
 from mathutils import Vector
 import shutil
 
+# Simple wrapper on IO to handle indentation
+class PBRTWriter: 
+    def __init__(self, file):
+        self.indent = ''
+        self.file = open(file, 'w')
+
+    def write(self, s):
+        self.file.write(self.indent)
+        self.file.write(s)
+
+    def inc_indent(self):
+        self.indent = self.indent + '\t'
+    def dec_indent(self):
+        self.indent = self.indent[:-1]
+    
+    def attr_begin(self):
+        self.write("AttributeBegin\n")
+        self.inc_indent()
+    def attr_end(self):
+        self.dec_indent()
+        self.write("AttributeEnd\n")
+
+    def close(self):
+        self.file.close()
+
+
 #render engine custom begin
 class PBRTRenderEngine(bpy.types.RenderEngine):
     bl_idname = 'PBRT_Renderer'
@@ -61,7 +87,7 @@ def export_spot_lights(pbrt_file, scene):
                     at_point=ob.matrix_world.col[2]
                     at_point=at_point * -1
                     at_point=at_point + from_point
-                    pbrt_file.write("AttributeBegin\n")
+                    pbrt_file.attr_begin()
                     pbrt_file.write(" LightSource \"spot\"\n \"point from\" [%s %s %s]\n \"point to\" [%s %s %s]\n" % (from_point.x, from_point.y, from_point.z,at_point.x, at_point.y, at_point.z))
                     
                     #TODO: Parse the values from the light \ color and so on. also add falloff etc.
@@ -78,12 +104,11 @@ def export_point_lights(pbrt_file, scene):
                 if la.type == "POINT" :
                     print('\n\nexporting lamp: ' + object.name + ' - type: ' + object.type)
                     print('\nExporting point light: ' + object.name)
-                    pbrt_file.write("AttributeBegin")
-                    pbrt_file.write("\n")
+                    pbrt_file.attr_begin()
                     from_point=object.matrix_world.col[3]
                     pbrt_file.write("Translate\t%s %s %s\n" % (from_point.x, from_point.y, from_point.z))
                     pbrt_file.write("LightSource \"point\"\n\"rgb I\" [%s %s %s]\n" % (bpy.data.objects[object.name].color[0], bpy.data.objects[object.name].color[1], bpy.data.objects[object.name].color[2]))
-                    pbrt_file.write("AttributeEnd")
+                    pbrt_file.attr_end()
                     pbrt_file.write("\n\n")
 
     return ''
@@ -296,10 +321,10 @@ def export_EnviromentMap(pbrt_file):
         shutil.copyfile(srcfile, dstdir)
 
         environmentmapscaleValue = bpy.data.scenes[0].environmentmapscale
-        pbrt_file.write("AttributeBegin\n")
+        pbrt_file.attr_begin()
         pbrt_file.write(r'LightSource "infinite" "string mapname" "%s" "color scale" [%s %s %s]' % ("textures/" + environmentMapFileName,environmentmapscaleValue,environmentmapscaleValue,environmentmapscaleValue))
         pbrt_file.write("\n")
-        pbrt_file.write("AttributeEnd")
+        pbrt_file.attr_end()
         pbrt_file.write("\n\n")
 
 def export_environmentLight(pbrt_file):
@@ -309,7 +334,7 @@ def export_environmentLight(pbrt_file):
     environmentMapPath = ""
     environmentMapFileName = ""
     print(environmenttype)
-    pbrt_file.write("AttributeBegin\n")
+    pbrt_file.attr_begin()
 
     if environmenttype == "TEX_IMAGE":
         print(environmenttype)
@@ -330,7 +355,7 @@ def export_environmentLight(pbrt_file):
         pbrt_file.write(r'LightSource "infinite" "color L" [%s %s %s] "color scale" [%s %s %s]' %(bpy.data .worlds['World'].node_tree.nodes['Background'].inputs['Color'].default_value[0],bpy.data .worlds['World'].node_tree.nodes['Background'].inputs['Color'].default_value[1],bpy.data .worlds['World'].node_tree.nodes['Background'].inputs['Color'].default_value[2],backgroundStrength,backgroundStrength,backgroundStrength))
 
     pbrt_file.write("\n")
-    pbrt_file.write("AttributeEnd")
+    pbrt_file.attr_end()
     pbrt_file.write("\n\n")
     return ''
 
@@ -445,7 +470,8 @@ def export_principled_bsdf_material(pbrt_file, mat):
 def export_pbrt_emissive_material(pbrt_file, mat):
     color = mat.inputs["Color"]
     strength = mat.inputs["Strength"].default_value
-    pbrt_file.write(r'AreaLightSource "diffuse" "rgb L" [ {} {} {} ] '.format(color.default_value[0] * strength, color.default_value[1] * strength, color.default_value[2] * strength))
+    pbrt_file.write(r'AreaLightSource "diffuse" "rgb L" [ {} {} {} ]'.format(color.default_value[0] * strength, color.default_value[1] * strength, color.default_value[2] * strength))
+    pbrt_file.write("\n")
     return ''
 
 
@@ -1126,7 +1152,7 @@ def createDefaultExportDirectories(pbrt_file, scene):
         os.makedirs(texturePath)
 
 
-def export_geometry(pbrt_file, scene):
+def export_geometry(pbrt_file, scene, frameNumber):
     
     # We now export the mesh as pbrt's triangle meshes.
     # Development documentation :
@@ -1148,49 +1174,79 @@ def export_geometry(pbrt_file, scene):
             if not mesh.loop_triangles and mesh.polygons:
                 mesh.calc_loop_triangles()
 
+            # Compute normals
+            mesh.calc_normals_split()
+
             for i in range(max(len(object.material_slots), 1)):
-                pbrt_file.write("AttributeBegin\n")
+                pbrt_file.attr_begin()
                 pbrt_file.write( "Transform [" + matrixtostr( object.matrix_world.transposed() ) + "]\n" )
                 if len(object.material_slots) != 0: export_material(pbrt_file, object, i)
-                pbrt_file.write( "Shape \"trianglemesh\"\n")
+                
+                # TODO: This can be optimized further by computing the multiple list of vertices indices
+                #   One for each material. However, this might not be a big deal as it is not too often 
+                #   Than a single mesh have a lot of different material applied to it.
 
-                # TODO: 
-                # The current way we loop through triangles is not optimized.
-                # This should be fixed by looping through once, then collect all
-                # faces\verts etc that belongs to slot X, then export each collection.
-                pbrt_file.write( '\"point P\" [\n' )
+                # Generate the list of vertex index associated to the given material
+                # These index will be used to export vertex position.
+                # Moreover, depending on the number of indices, we will decide to generate a PLY
+                # or not
+                indices = []
+                normals = []
                 for tri in mesh.loop_triangles:
                     if tri.material_index == i:
-                        for vert_index in tri.vertices:
-                            pbrt_file.write("%s %s %s\n" % (mesh.vertices[vert_index].co.x, mesh.vertices[vert_index].co.y, mesh.vertices[vert_index].co.z))
-                pbrt_file.write( "]\n" )
+                        indices.extend(tri.vertices)
+                        normals.extend(tri.split_normals)
+                print("Nb Tri: ", len(indices) // 3) 
+
+                if len(indices) // 3 > 10:
+                    # Prefer to export as separated file
+                    # TODO: Detect if the object move across frames.
+                    #   This might save a lot if we only export one geometry
+                    objFolderPath = bpy.path.abspath(bpy.data.scenes[0].exportpath + 'meshes/' + frameNumber + '/')
+                    if not os.path.exists(objFolderPath):
+                        print('Meshes directory did not exist, creating: ')
+                        print(objFolderPath)
+                        os.makedirs(objFolderPath)
+
+                    objFilePath = objFolderPath + object.name + '.pbrt  ' 
+                    pbrt_file_obj = open(objFilePath, 'w')
+
+                    # Include the file that will be created
+                    objFilePathRel = 'meshes/' + frameNumber + '/' + object.name + '.pbrt' 
+                    pbrt_file.write('Include "%s"\n' % objFilePathRel)
+                else:
+                    pbrt_file_obj = pbrt_file
+
+                pbrt_file_obj.write( "Shape \"trianglemesh\"\n")
+                pbrt_file_obj.write( '\"point P\" [\n' )
+                pbrt_file_obj.write(" ".join([str(item) for id_vertex in indices 
+                                                        for item in [mesh.vertices[id_vertex].co.x, 
+                                                                    mesh.vertices[id_vertex].co.y, 
+                                                                    mesh.vertices[id_vertex].co.z]]))
+                pbrt_file_obj.write( "\n" )
+                pbrt_file_obj.write( "]\n" )
+
+                pbrt_file_obj.write( "\"normal N\" [\n" )
+                pbrt_file_obj.write(" ".join([str(item) for n in normals 
+                                                        for item in n]))
+                pbrt_file_obj.write( "\n" )
+                pbrt_file_obj.write( "]\n" )
+
                 
-                mesh.calc_normals_split()
-                pbrt_file.write( "\"normal N\" [\n" )
-                for tri in mesh.loop_triangles:
-                    if tri.material_index == i:
-                        for vert_index in tri.split_normals:
-                            pbrt_file.write("%s %s %s\n" % (vert_index[0],vert_index[1],vert_index[2]))
-                pbrt_file.write( "]\n" )
-                
-                pbrt_file.write( "\"float st\" [\n" )
+                pbrt_file_obj.write( "\"float st\" [\n" )
                 for uv_layer in mesh.uv_layers:
                     for tri in mesh.loop_triangles:
                         if tri.material_index == i:
                             for loop_index in tri.loops:
-                                pbrt_file.write("%s %s \n" % (uv_layer.data[loop_index].uv[0], uv_layer.data[loop_index].uv[1]))
-                pbrt_file.write( "]\n" )
+                                pbrt_file_obj.write("%s %s \n" % (uv_layer.data[loop_index].uv[0], uv_layer.data[loop_index].uv[1]))
+                pbrt_file_obj.write( "]\n" )
 
-                pbrt_file.write( "\"integer indices\" [\n" )
-                faceIndex = 0
-                for tri in mesh.loop_triangles:
-                    if tri.material_index == i:
-                        for vert_index in tri.vertices:
-                            pbrt_file.write("%s " % (faceIndex))
-                            faceIndex +=1
-                pbrt_file.write("\n")
-                pbrt_file.write( "]\n" )
-                pbrt_file.write("AttributeEnd\n\n")
+                pbrt_file_obj.write( "\"integer indices\" [\n" )
+                pbrt_file_obj.write("%s \n" % " ".join([str(i) for i in range(len(indices))]))
+                pbrt_file_obj.write( "]\n" )
+
+                pbrt_file.attr_end()
+                pbrt_file.write("\n\n")
 
     return ''
 
@@ -1211,7 +1267,7 @@ def export_dummymesh(pbrt_file):
     pbrt_file.write("\n")
     pbrt_file.write(r'"integer indices" [ 0 1 2 2 3 0]')
     pbrt_file.write("\n")
-    pbrt_file.write("AttributeEnd")
+    pbrt_file.attr_end()
     pbrt_file.write("\n\n")
     return ''
 
@@ -1222,20 +1278,22 @@ def export_pbrt(filepath, scene , frameNumber):
         print(filepath)
         os.makedirs(filepath)
 
-    with open(out, 'w') as pbrt_file:
-        createDefaultExportDirectories(pbrt_file,scene)
-        export_film(pbrt_file, frameNumber)
-        export_sampler(pbrt_file)
-        export_integrator(pbrt_file,scene)
-        export_camera(pbrt_file)
-        world_begin(pbrt_file)
-        export_EnviromentMap(pbrt_file)
-        #export_environmentLight(pbrt_file)
-        print('Begin export lights:')
-        export_point_lights(pbrt_file,scene)
-        export_spot_lights(pbrt_file,scene)
-        print('End export lights.')
-        export_geometry(pbrt_file,scene)
-        #export_dummymesh(pbrt_file)
-        world_end(pbrt_file)
-        pbrt_file.close()
+    pbrt_file = PBRTWriter(out)
+    createDefaultExportDirectories(pbrt_file,scene)
+    export_film(pbrt_file, frameNumber)
+    export_sampler(pbrt_file)
+    export_integrator(pbrt_file,scene)
+    export_camera(pbrt_file)
+    
+    world_begin(pbrt_file)
+    pbrt_file.inc_indent()
+
+    export_EnviromentMap(pbrt_file)
+    print('Begin export lights:')
+    export_point_lights(pbrt_file,scene)
+    export_spot_lights(pbrt_file,scene)
+    print('End export lights.')
+    export_geometry(pbrt_file,scene,frameNumber)
+    pbrt_file.dec_indent()
+    world_end(pbrt_file)
+    pbrt_file.close()
