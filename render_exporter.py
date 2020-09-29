@@ -1266,10 +1266,11 @@ def export_geometry(pbrt_file, scene, frameNumber):
                         os.makedirs(objFolderPath)
 
                     # Include the file that will be created
-                    objFilePath = objFolderPath + object.name + '.ply' 
-                    objFilePathRel = 'meshes/' + frameNumber + '/' + object.name + '.ply' 
+                    objFilePath = objFolderPath + object.name + f'_mat{i}.ply' 
+                    objFilePathRel = 'meshes/' + frameNumber + '/' + object.name + f'_mat{i}.ply'
 
-                    pbrt_file.write(f'Shape "plymesh" "string filename" ["{objFilePathRel}"]')
+
+                    pbrt_file.write(f'Shape "plymesh" "string filename" ["{objFilePathRel}"]\n')
                     write_ply(objFilePath, mesh, indices, normals, i)
                 else:
                     pbrt_file.write( "Shape \"trianglemesh\"\n")
