@@ -12,6 +12,7 @@ https://www.youtube.com/watch?v=Bx6YKGteEB8&list=PLReF6vPz2ugrXbu9kWPiJp0l08xqp7
 
 This is a exporter for blender 2.8x that exports the scene into pbrt's ascii file format.
 The resulting files can then be rendered with PBRT renderer.
+If you use pbrt-v4 then use 'pbrt.exe --upgrade' until full support has been added in the exporter.
 
 This is still work in progress, so a lot of features are not complete yet.
 But Ḯ'm actively working on it to add each feature to it. I started working on this project 1 year ago as a way of learning blender and development for it after switching to blender on all my projects from 3dsmax (been using 3dsmax daily the last 18 years).
