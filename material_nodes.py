@@ -192,6 +192,7 @@ class PbrtDisney(Node, MyCustomTreeNode):
     bl_idname = 'CustomNodeTypeDisney'
     bl_label = 'Pbrt Disney'
     bl_icon = 'INFO'
+    show_texture = True
 
     def updateViewportColor(self,context):
         mat = bpy.context.active_object.active_material
@@ -297,6 +298,8 @@ class PbrtMetal(Node, MyCustomTreeNode):
     bl_idname = 'CustomNodeTypeMetal'
     bl_label = 'Pbrt Metal'
     bl_icon = 'INFO'
+    show_texture = True
+
     def update_value(self, context):
         self.update ()
     
@@ -353,6 +356,7 @@ class PbrtUber(Node, MyCustomTreeNode):
     bl_idname = 'CustomNodeTypeUber'
     bl_label = 'Pbrt Uber'
     bl_icon = 'INFO'
+    show_texture = True
 
     def updateViewportColor(self,context):
         mat = bpy.context.active_object.active_material
@@ -416,6 +420,7 @@ class PbrtSubsurface(Node, MyCustomTreeNode):
     bl_idname = 'CustomNodeTypeSubsurface'
     bl_label = 'Pbrt Subsurface'
     bl_icon = 'INFO'
+    show_texture = True
 
     def updateViewportColor(self,context):
         mat = bpy.context.active_object.active_material
@@ -544,6 +549,7 @@ class PbrtSubstrate(Node, MyCustomTreeNode):
     bl_idname = 'CustomNodeTypeSubstrate'
     bl_label = 'Pbrt Substrate'
     bl_icon = 'INFO'
+    show_texture = True
 
     def updateViewportColor(self,context):
         mat = bpy.context.active_object.active_material
@@ -595,6 +601,7 @@ class PbrtPlastic(Node, MyCustomTreeNode):
     bl_idname = 'CustomNodeTypePlastic'
     bl_label = 'Pbrt Plastic'
     bl_icon = 'INFO'
+    show_texture = True
 
     def updateViewportColor(self,context):
         mat = bpy.context.active_object.active_material
@@ -680,6 +687,7 @@ class PbrtTranslucent(Node, MyCustomTreeNode):
     bl_idname = 'CustomNodeTypeTranslucent'
     bl_label = 'Pbrt Translucent'
     bl_icon = 'INFO'
+    show_texture = True
 
     def updateViewportColor(self,context):
         mat = bpy.context.active_object.active_material
