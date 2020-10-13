@@ -5,7 +5,7 @@ class ExportPbrtScene(bpy.types.Operator):
     bl_idname = 'scene.export'
     bl_label = 'Export Scene'
     bl_options = {"REGISTER", "UNDO"}
-    COMPAT_ENGINES = {'PBRT_Renderer'}
+    COMPAT_ENGINES = {'Pbrt_v4_renderer'}
     
     def execute(self, context):
         print("Starting calling pbrt_export")
@@ -26,20 +26,20 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = "render"
-    COMPAT_ENGINES = {'PBRT_Renderer'}
+    COMPAT_ENGINES = {'Pbrt_v4_renderer'}
 
     #Hide the pbrt render panel if PBRT render engine is not currently selected.
     @classmethod
     def poll(cls, context):
         engine = context.scene.render.engine
-        if engine != 'PBRT_Renderer':
+        if engine != 'Pbrt_v4_renderer':
             return False
         else:
             return True
 
     def draw(self, context):
         engine = context.scene.render.engine
-        if engine != 'PBRT_Renderer':
+        if engine != 'Pbrt_v4_renderer':
             bpy.utils.unregister_class(PbrtRenderSettingsPanel)
 
         layout = self.layout
