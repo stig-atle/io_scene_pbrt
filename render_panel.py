@@ -117,7 +117,14 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
 
         row.prop(scene,"integrators")
         row.prop(scene,"maxdepth")
-        
+        row = layout.row()
+
+        if scene.integrators == 'path':
+            row = layout.row()
+            row.prop(scene, "path_rrthreshold")
+            row = layout.row()
+            row.prop(scene, "path_regularize")
+
         if scene.integrators == 'bdpt':
             row = layout.row()
             row.prop(scene,"bdpt_visualizestrategies")
@@ -211,9 +218,19 @@ def register():
     bpy.types.Scene.spp = bpy.props.IntProperty(name = "Samples per pixel", description = "Set spp", default = 100, min = 1, max = 9999)
     bpy.types.Scene.maxdepth = bpy.props.IntProperty(name = "Max depth", description = "Set max depth", default = 10, min = 1, max = 9999)
 
-    integrators = [("path", "path", "", 1), ("volpath", "volpath", "", 2),("bdpt", "bdpt", "", 3),("mlt", "mlt", "", 4),("sppm", "sppm", "", 5)]
+
+    # New exporter should have:
+    # path, volpath, bdpt, mlt, sppm, randomwalk, simplepath, lightpath, simplevolpath, ambientocclusion
+    integrators = [("path", "path", "", 1),("volpath", "volpath", "", 2),("bdpt", "bdpt", "", 3), ("mlt", "mlt", "", 4), ("sppm", "sppm", "", 5), ("randomwalk", "randomwalk", "", 6),("simplepath", "simplepath", "", 7),("lightpath", "lightpath", "", 8),("simplevolpath", "simplevolpath", "", 9),("ambientocclusion", "ambientocclusion", "", 10)]
+
     bpy.types.Scene.integrators = bpy.props.EnumProperty(name = "Name", items=integrators , default="path")
 
+    bpy.types.Scene.path_rrthreshold = bpy.props.FloatProperty(name = "rrthreshold", description = "rrthreshold", default = 1, min = 0.001, max = 9999)
+    bpy.types.Scene.path_regularize = bpy.props.BoolProperty(
+    name="path regularize",
+    description="path regularize",
+    default = False)
+    
     lightsamplestrategy = [("uniform", "uniform", "", 1), ("power", "power", "", 2), ("spatial", "spatial", "", 3)]
     bpy.types.Scene.lightsamplestrategy = bpy.props.EnumProperty(name = "lightsamplestrategy", items=lightsamplestrategy , default="spatial")
 

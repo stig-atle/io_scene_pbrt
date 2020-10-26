@@ -307,6 +307,13 @@ def export_integrator(pbrt_file, scene):
     pbrt_file.write(r'"integer maxdepth" [%s]' % (bpy.data.scenes[0].maxdepth))
     pbrt_file.write("\n")
 
+    if scene.integrators == 'path':
+        pbrt_file.write(r'"float rrthreshold" [%s]' % (bpy.data.scenes[0].path_rrthreshold))
+        pbrt_file.write("\n")
+        if scene.path_regularize:
+            pbrt_file.write(r'"bool regularize" "true"')
+            pbrt_file.write("\n")
+    
     if scene.integrators == 'bdpt':
         if scene.bdpt_visualizestrategies :
             pbrt_file.write(r'"bool visualizestrategies" "true"')
