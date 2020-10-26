@@ -116,6 +116,7 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         row = layout.row()
 
         row.prop(scene,"integrators")
+        row = layout.row()
         row.prop(scene,"maxdepth")
         row = layout.row()
 
