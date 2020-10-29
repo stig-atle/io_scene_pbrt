@@ -120,11 +120,11 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
         row.prop(scene,"maxdepth")
         row = layout.row()
 
-        if scene.integrators == 'path':
+        if scene.integrators == 'path' or scene.integrators == 'volpath':
             row = layout.row()
-            row.prop(scene, "path_rrthreshold")
+            row.prop(scene, "rrthreshold")
             row = layout.row()
-            row.prop(scene, "path_regularize")
+            row.prop(scene, "regularize")
 
         if scene.integrators == 'bdpt':
             row = layout.row()
@@ -149,10 +149,14 @@ class PbrtRenderSettingsPanel(bpy.types.Panel):
             row = layout.row()
             row.prop(scene,"sppm_photonsperiteration")
             row = layout.row()
-            row.prop(scene,"sppm_imagewritefrequency")
+            row.prop(scene,"sppm_seed")
             row = layout.row()
             row.prop(scene,"sppm_radius")
 
+        if scene.integrators == 'simplepath':
+            row = layout.row()
+            row.prop(scene,"simplepath_samplelights")
+            row.prop(scene,"simplepath_samplebsdf")
 
         layout.label(text="Sampler settings:")
         row = layout.row()
@@ -219,15 +223,12 @@ def register():
     bpy.types.Scene.spp = bpy.props.IntProperty(name = "Samples per pixel", description = "Set spp", default = 100, min = 1, max = 9999)
     bpy.types.Scene.maxdepth = bpy.props.IntProperty(name = "Max depth", description = "Set max depth", default = 10, min = 1, max = 9999)
 
-
-    # New exporter should have:
-    # path, volpath, bdpt, mlt, sppm, randomwalk, simplepath, lightpath, simplevolpath, ambientocclusion
-    integrators = [("path", "path", "", 1),("volpath", "volpath", "", 2),("bdpt", "bdpt", "", 3), ("mlt", "mlt", "", 4), ("sppm", "sppm", "", 5), ("randomwalk", "randomwalk", "", 6),("simplepath", "simplepath", "", 7),("lightpath", "lightpath", "", 8),("simplevolpath", "simplevolpath", "", 9),("ambientocclusion", "ambientocclusion", "", 10)]
+    integrators = [("path", "path", "", 1),("volpath", "volpath", "", 2),("bdpt", "bdpt", "", 3), ("mlt", "mlt", "", 4), ("sppm", "sppm", "", 5), ("randomwalk", "randomwalk", "", 6),("simplepath", "simplepath", "", 7),("lightpath", "lightpath", "", 8),("simplevolpath", "simplevolpath", "", 9)]
 
     bpy.types.Scene.integrators = bpy.props.EnumProperty(name = "Name", items=integrators , default="path")
 
-    bpy.types.Scene.path_rrthreshold = bpy.props.FloatProperty(name = "rrthreshold", description = "rrthreshold", default = 1, min = 0.001, max = 9999)
-    bpy.types.Scene.path_regularize = bpy.props.BoolProperty(
+    bpy.types.Scene.rrthreshold = bpy.props.FloatProperty(name = "rrthreshold", description = "rrthreshold", default = 1, min = 0.001, max = 9999)
+    bpy.types.Scene.regularize = bpy.props.BoolProperty(
     name="path regularize",
     description="path regularize",
     default = False)
@@ -264,8 +265,17 @@ def register():
 
     bpy.types.Scene.sppm_numiterations = bpy.props.IntProperty(name = "Num iterations", description = "Num iterations", default = 64, min = 1, max = 9999999)
     bpy.types.Scene.sppm_photonsperiteration = bpy.props.IntProperty(name = "Photons per iteration", description = "Photons per iteration", default = 1, min = 1, max = 9999999)
-    bpy.types.Scene.sppm_imagewritefrequency = bpy.props.IntProperty(name = "Image write frequency", description = "Image write frequency", default = 1, min = 1, max = 31)
     bpy.types.Scene.sppm_radius = bpy.props.FloatProperty(name = "Radius", description = "Radius", default = 1.0, min = 0.001, max = 9999)
+    bpy.types.Scene.sppm_seed= bpy.props.IntProperty(name = "Seed", description = "Seed", default = 0, min = 0, max = 99999)
+
+    bpy.types.Scene.simplepath_samplelights= bpy.props.BoolProperty(
+    name="Sample lights",
+    description="Sample lights",
+    default = True)
+    bpy.types.Scene.simplepath_samplebsdf= bpy.props.BoolProperty(
+    name="Sample bsdf",
+    description="Sample bsdf",
+    default = True)
 
     filterTypes = [("box", "box", "", 1), ("gaussian", "gaussian", "", 2), ("mitchell", "mitchell", "", 3),("sinc", "sinc", "", 4),("triangle", "triangle", "", 5)]
     bpy.types.Scene.filterType = bpy.props.EnumProperty(name = "filterType", items=filterTypes , default="box")
@@ -295,3 +305,4 @@ def register():
     bpy.types.Scene.jitter = bpy.props.BoolProperty(name="jitter", description="jitter", default = True)
     bpy.types.Scene.xsamples = bpy.props.IntProperty(name = "xsamples", description = "xsamples", default = 4, min = 0, max = 9999999)
     bpy.types.Scene.ysamples = bpy.props.IntProperty(name = "ysamples", description = "ysamples", default = 4, min = 0, max = 9999999)
+
