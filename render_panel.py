@@ -233,8 +233,8 @@ def register():
     description="path regularize",
     default = False)
     
-    lightsamplestrategy = [("uniform", "uniform", "", 1), ("power", "power", "", 2), ("spatial", "spatial", "", 3)]
-    bpy.types.Scene.lightsamplestrategy = bpy.props.EnumProperty(name = "lightsamplestrategy", items=lightsamplestrategy , default="spatial")
+    lightsamplestrategy = [("uniform", "uniform", "", 1), ("power", "power", "", 2), ("bvh", "bvh", "", 3), ("exhaustive", "exhaustive","",4)]
+    bpy.types.Scene.lightsamplestrategy = bpy.props.EnumProperty(name = "lightsamplestrategy", items=lightsamplestrategy , default="bvh")
 
     bpy.types.Scene.environmentmapscale = bpy.props.FloatProperty(name = "Env. map scale", description = "Env. map scale", default = 1, min = 0.001, max = 9999)
     
