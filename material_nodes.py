@@ -93,8 +93,8 @@ class Pbrt_V4_CoatedDiffuse(Node, MyCustomTreeNode):
         if mat is not None:
             bpy.data.materials[mat.name].diffuse_color=self.reflectance
 
-    maxdepth : bpy.props.FloatProperty(default=1.5, min=0.0, max=9999.0)
-    nsamples : bpy.props.FloatProperty(default=1.5, min=0.0, max=9999.0)
+    #maxdepth : bpy.props.FloatProperty(default=1.5, min=0.0, max=9999.0)
+    #nsamples : bpy.props.FloatProperty(default=1.5, min=0.0, max=9999.0)
     twosided : bpy.props.BoolProperty(name="twosided", description="twosided.", default = False)
     remaproughness : bpy.props.BoolProperty(name="remaproughness", description="remaproughness.", default = True)
 
@@ -124,8 +124,8 @@ class Pbrt_V4_CoatedDiffuse(Node, MyCustomTreeNode):
         layout.prop(self, "roughness",text = 'roughness')
         layout.prop(self, "thickness",text = 'thickness')
         layout.prop(self, "eta",text = 'eta')
-        layout.prop(self, "maxdepth",text = 'maxdepth')
-        layout.prop(self, "nsamples",text = 'nsamples')
+        #layout.prop(self, "maxdepth",text = 'maxdepth')
+        #layout.prop(self, "nsamples",text = 'nsamples')
         layout.prop(self, "twosided",text = 'twosided')
         
     def draw_label(self):
@@ -371,17 +371,17 @@ class Pbrt_V4_Thin_Dielectric(Node, MyCustomTreeNode):
         eta = self.inputs.new('NodeSocketFloat', "eta")
         eta.default_value = 1.5
 
-        etaF = self.inputs.new('NodeSocketFloat', "etaF")
-        etaF.default_value = 0.0
+        #etaF = self.inputs.new('NodeSocketFloat', "etaF")
+        #etaF.default_value = 0.0
 
-        etaS = self.inputs.new('NodeSocketFloat', "etaS")
-        etaS.default_value = 0.0
+        #etaS = self.inputs.new('NodeSocketFloat', "etaS")
+        #etaS.default_value = 0.0
 
-        vRoughness = self.inputs.new('NodeSocketFloat', "VRoughness")
-        vRoughness.default_value = 0
+        #vRoughness = self.inputs.new('NodeSocketFloat', "VRoughness")
+        #vRoughness.default_value = 0
         
-        uRoughness = self.inputs.new('NodeSocketFloat', "URoughness")
-        uRoughness.default_value = 0
+        #uRoughness = self.inputs.new('NodeSocketFloat', "URoughness")
+        #uRoughness.default_value = 0
         
         displacementTexture = self.inputs.new('NodeSocketColor', "displacement texture")
         displacementTexture.hide_value = True
