@@ -337,7 +337,7 @@ class Pbrt_V4_Conductor(Node, MyCustomTreeNode):
         self.outputs.new('NodeSocketFloat', "Pbrt V4 Conductor")
         
         eta = self.inputs.new('NodeSocketFloat', "eta")
-        eta.default_value = 1.5
+        eta.hide_value = True
         
         k = self.inputs.new('NodeSocketColor', "k")
         k.default_value = (0.8, 0.8, 0.8, 1.0)
