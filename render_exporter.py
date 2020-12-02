@@ -481,6 +481,40 @@ def export_Pbrt_V4_Diffuse (pbrt_file, mat):
 
     return ''
 
+def export_Pbrt_V4_Dielectric(pbrt_file, mat):
+    etaTextureName = export_texture_from_input(pbrt_file,mat.inputs[0],mat, True)
+    vRoughnessTextureName = export_texture_from_input(pbrt_file,mat.inputs[1],mat, True)
+    uRoughnessTextureName = export_texture_from_input(pbrt_file,mat.inputs[2],mat, True)
+    
+    pbrt_file.write(r'Material "dielectric"')
+    pbrt_file.write("\n")
+
+    if etaTextureName != "":
+        pbrt_file.write(r'"texture %s" "%s"' % ("eta", etaTextureName))
+    else:
+        pbrt_file.write(r'"float eta" [%s]' %(mat.inputs[0].default_value))
+        pbrt_file.write("\n")
+
+    if vRoughnessTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("vroughness", vRoughnessTextureName))
+    else:
+        pbrt_file.write(r'"float vroughness" [%s]' %(mat.inputs[1].default_value))
+    pbrt_file.write("\n")
+
+    if uRoughnessTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("vroughness", uRoughnessTextureName))
+    else:
+        pbrt_file.write(r'"float uroughness" [%s]' %(mat.inputs[2].default_value))
+    pbrt_file.write("\n")
+
+    if (mat.remaproughness):
+        pbrt_file.write(r'"bool remaproughness" [true]')
+    else:
+        pbrt_file.write(r'"bool remaproughness" [false]')
+    pbrt_file.write("\n")
+
+    return ''
+
 def export_Pbrt_V4_Thin_Dielectric(pbrt_file, mat):
     print('Currently exporting Pbrt thin dielectric material')
 
@@ -672,6 +706,65 @@ def export_Pbrt_V4_Conductor(pbrt_file, mat):
     pbrt_file.write("\n")
     return ''
 
+def export_Pbrt_V4_Coated_Conductor(pbrt_file, mat):
+    pbrt_file.write(r'Material "coatedconductor"')
+    pbrt_file.write("\n")
+
+    etaTextureName = export_texture_from_input(pbrt_file,mat.inputs[0],mat, False)
+    kTextureName = export_texture_from_input(pbrt_file,mat.inputs[1],mat, False)
+    interfaceURoughnessTextureName = export_texture_from_input(pbrt_file,mat.inputs[2],mat, False)
+    interfaceVRoughnessTextureName = export_texture_from_input(pbrt_file,mat.inputs[3],mat, False)
+    conductorVRoughnessTextureName = export_texture_from_input(pbrt_file,mat.inputs[4],mat, False)
+    conductorURoughnessTextureName = export_texture_from_input(pbrt_file,mat.inputs[5],mat, False)
+    displacementTextureName = export_texture_from_input(pbrt_file,mat.inputs[6],mat, False)
+
+    if etaTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("eta", etaTextureName))
+    else:
+        pbrt_file.write(r'"float eta" [%s]' %(mat.inputs[0].default_value))
+    pbrt_file.write("\n")
+
+    if kTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("k", kTextureName))
+    else:
+        pbrt_file.write(r'"float k" [%s]' %(mat.inputs[1].default_value))
+    pbrt_file.write("\n")
+
+    if interfaceURoughnessTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("interface.uroughness", interfaceURoughnessTextureName))
+    else:
+        pbrt_file.write(r'"float interface.uroughness" [%s]' %(mat.inputs[2].default_value))
+    pbrt_file.write("\n")
+
+    if interfaceVRoughnessTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("interface.uroughness", interfaceVRoughnessTextureName))
+    else:
+        pbrt_file.write(r'"float interface.vroughness" [%s]' %(mat.inputs[3].default_value))
+    pbrt_file.write("\n")
+
+    if conductorURoughnessTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("conductor.uroughness", interfaceVRoughnessTextureName))
+    else:
+        pbrt_file.write(r'"float conductor.uroughness" [%s]' %(mat.inputs[4].default_value))
+    pbrt_file.write("\n")
+
+    if conductorVRoughnessTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("conductor.vroughness", interfaceVRoughnessTextureName))
+    else:
+        pbrt_file.write(r'"float conductor.vroughness" [%s]' %(mat.inputs[5].default_value))
+    pbrt_file.write("\n")
+
+    if displacementTextureName != "":
+        pbrt_file.write(r'"texture %s" "%s"' % ("displacement", displacementTextureName))
+    pbrt_file.write("\n")
+
+    pbrt_file.write(r'"float thickness" [%s]' %(mat.thickness))
+    if (mat.remaproughness):
+        pbrt_file.write(r'"bool remaproughness" [true]')
+    else:
+        pbrt_file.write(r'"bool remaproughness" [false]')
+    pbrt_file.write("\n")
+    return ''
 
 def export_medium(pbrt_file, inputNode):
     if inputNode is not None:
@@ -846,6 +939,8 @@ def export_material(pbrt_file, object, slotIndex):
                         print(currentMaterial.bl_idname)
                         if currentMaterial.bl_idname == 'Pbrt_V4_Diffuse':
                             export_Pbrt_V4_Diffuse(pbrt_file,currentMaterial)
+                        if currentMaterial.bl_idname == 'Pbrt_V4_Dielectric':
+                            export_Pbrt_V4_Dielectric(pbrt_file, currentMaterial)
                         if currentMaterial.bl_idname == 'Pbrt_V4_Thin_Dielectric':
                             export_Pbrt_V4_Thin_Dielectric(pbrt_file, currentMaterial)
                         if currentMaterial.bl_idname == 'Pbrt_V4_CoatedDiffuse':
@@ -854,6 +949,8 @@ def export_material(pbrt_file, object, slotIndex):
                             export_Pbrt_V4_DiffuseTransmission(pbrt_file, currentMaterial)
                         if currentMaterial.bl_idname == 'Pbrt_V4_Conductor' :
                             export_Pbrt_V4_Conductor(pbrt_file, currentMaterial)
+                        if currentMaterial.bl_idname == 'Pbrt_V4_Coated_Conductor' :
+                            export_Pbrt_V4_Coated_Conductor(pbrt_file, currentMaterial)
 
     return''
 

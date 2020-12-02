@@ -281,7 +281,6 @@ class Pbrt_V4_Dielectric(Node, MyCustomTreeNode):
     show_texture = True
 
     remaproughness : bpy.props.BoolProperty(name="remaproughness", description="remaproughness.", default = True)
-    scale : bpy.props.FloatProperty(default=1.0, min=0.0, max=9999.0)
     
 
     def init(self, context):
@@ -298,7 +297,6 @@ class Pbrt_V4_Dielectric(Node, MyCustomTreeNode):
  
     def draw_buttons(self, context, layout):
         layout.prop(self, "remaproughness",text = 'remaproughness')
-        layout.prop(self, "scale",text = 'scale')
 
     def draw_label(self):
         return "Pbrt V4 Dielectric"
@@ -399,7 +397,7 @@ class Pbrt_V4_Coated_Conductor(Node, MyCustomTreeNode):
     show_texture = True
 
     remaproughness : bpy.props.BoolProperty(name="remaproughness", description="remaproughness.", default = True)
-    thickness : bpy.props.FloatProperty(default=1.0, min=0.0, max=9999.0)
+    thickness : bpy.props.FloatProperty(default=0.1, min=0.0, max=9999.0)
     
 
     def init(self, context):
@@ -411,18 +409,18 @@ class Pbrt_V4_Coated_Conductor(Node, MyCustomTreeNode):
         k = self.inputs.new('NodeSocketFloat', "k")
         k.default_value = 1.5
 
-        interfaceVRoughness = self.inputs.new('NodeSocketFloat', "interfaceVRoughness")
-        interfaceVRoughness.default_value = 0
-
         interfaceURoughness = self.inputs.new('NodeSocketFloat', "interfaceURoughness")
         interfaceURoughness.default_value = 0
 
-        conductorVRoughness = self.inputs.new('NodeSocketFloat', "conductorVRoughness")
-        conductorVRoughness.default_value = 0
-        
+        interfaceVRoughness = self.inputs.new('NodeSocketFloat', "interfaceVRoughness")
+        interfaceVRoughness.default_value = 0
+
         conductorURoughness = self.inputs.new('NodeSocketFloat', "conductorURoughness")
         conductorURoughness.default_value = 0
         
+        conductorVRoughness = self.inputs.new('NodeSocketFloat', "conductorVRoughness")
+        conductorVRoughness.default_value = 0
+
         displacementTexture = self.inputs.new('NodeSocketColor', "displacement texture")
         displacementTexture.hide_value = True
 
