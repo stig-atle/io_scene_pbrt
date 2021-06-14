@@ -801,6 +801,57 @@ def export_pbrt_blackbody_material (pbrt_file, mat):
     pbrt_file.write("\n")
     return ''
 
+def export_Pbrt_V4_Subsurface(pbrt_file, mat):
+    
+    mfp_aTextureName = export_texture_from_input(pbrt_file,mat.inputs[0],mat, False)
+    reflectanceTextureName = export_texture_from_input(pbrt_file,mat.inputs[1],mat, False)
+    sigma_aTextureName = export_texture_from_input(pbrt_file,mat.inputs[4],mat, False)
+    sigma_sTextureName = export_texture_from_input(pbrt_file,mat.inputs[5],mat, False)
+    displacementTextureName = export_texture_from_input(pbrt_file,mat.inputs[6],mat, False)
+    
+    pbrt_file.write(r'Material "subsurface"')
+    pbrt_file.write("\n")
+
+    if (mat.presetName != "None"):
+        pbrt_file.write(r'"string name" ["%s"]' % (mat.presetName))
+        pbrt_file.write("\n")
+
+    if mfp_aTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("mfp", mfp_aTextureName))
+    #else:
+       # pbrt_file.write(r'"rgb mfp" [%s %s %s]' %(mat.inputs[0].default_value[0],mat.inputs[0].default_value[1],mat.inputs[0].default_value[2]))
+    pbrt_file.write("\n")
+
+    if reflectanceTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("reflectance", reflectanceTextureName))
+    #else:
+       # pbrt_file.write(r'"rgb reflectance" [%s %s %s]' %(mat.inputs[1].default_value[0],mat.inputs[1].default_value[1],mat.inputs[1].default_value[2]))
+    pbrt_file.write("\n")
+
+    if displacementTextureName != "" :
+        pbrt_file.write(r'"texture %s" "%s"' % ("displacement", displacementTextureName))
+    pbrt_file.write("\n")
+
+    if (mat.presetName == "None"):
+        if sigma_aTextureName != "" :
+            pbrt_file.write(r'"texture %s" "%s"' % ("sigma_a", sigma_aTextureName))
+        else:
+            pbrt_file.write(r'"rgb sigma_a" [%s %s %s]' %(mat.inputs[2].default_value[0],mat.inputs[2].default_value[1],mat.inputs[2].default_value[2]))
+            pbrt_file.write("\n")
+
+    if (mat.presetName == "None"):
+        if sigma_sTextureName != "" :
+            pbrt_file.write(r'"texture %s" "%s"' % ("sigma_s", sigma_sTextureName))
+        else:
+            pbrt_file.write(r'"rgb sigma_s" [%s %s %s]' %(mat.inputs[3].default_value[0],mat.inputs[3].default_value[1],mat.inputs[3].default_value[2]))
+
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"float scale" [%s]' %(mat.scale))
+    pbrt_file.write("\n")
+
+    pbrt_file.write("\n")
+    return ''
+
 def hastexturenewcode(mat, slotname):
     foundTex = False
     print ("checking texture for : ")
@@ -951,6 +1002,8 @@ def export_material(pbrt_file, object, slotIndex):
                             export_Pbrt_V4_Conductor(pbrt_file, currentMaterial)
                         if currentMaterial.bl_idname == 'Pbrt_V4_Coated_Conductor' :
                             export_Pbrt_V4_Coated_Conductor(pbrt_file, currentMaterial)
+                        if currentMaterial.bl_idname == 'Pbrt_V4_Subsurface' :
+                            export_Pbrt_V4_Subsurface(pbrt_file, currentMaterial)
 
     return''
 
