@@ -308,7 +308,7 @@ def export_integrator(pbrt_file, scene):
     pbrt_file.write("\n")
 
     if scene.integrators == 'path':
-        pbrt_file.write(r'"float rrthreshold" [%s]' % (bpy.data.scenes[0].rrthreshold))
+        #pbrt_file.write(r'"float rrthreshold" [%s]' % (bpy.data.scenes[0].rrthreshold))
         pbrt_file.write("\n")
         if scene.regularize:
             pbrt_file.write(r'"bool regularize" "true"')
@@ -471,7 +471,7 @@ def export_Pbrt_V4_Diffuse (pbrt_file, mat):
 
     pbrt_file.write(r'Material "diffuse"')
     pbrt_file.write("\n")
-    pbrt_file.write(r'"float sigma" [%s]' %(mat.inputs[1].default_value))
+    #pbrt_file.write(r'"float sigma" [%s]' %(mat.inputs[1].default_value))
     pbrt_file.write("\n")
     if reflectanceTextureName != "" :
         pbrt_file.write(r'"texture %s" "%s"' % ("reflectance", reflectanceTextureName))
