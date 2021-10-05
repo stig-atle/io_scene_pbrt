@@ -766,6 +766,21 @@ def export_Pbrt_V4_Coated_Conductor(pbrt_file, mat):
     pbrt_file.write("\n")
     return ''
 
+#TODO: Consider how we should define this light, either through a shader node, or possibly through a custom light widget.
+#export_Pbrt_V4_Diffuse_Area_Light(pbrt_file, currentMaterial)
+#    return StringPrintf("[ DiffuseAreaLight %s Lemit: %s scale: %f shape: %s alpha: %s "
+#                        "twoSided: %s area: %f image: %s ]",
+#                        BaseToString(), Lemit, scale, shape, alpha,
+#                        twoSided ? "true" : "false", area, image);
+def export_Pbrt_V4_Diffuse_Area_Light(pbrt_file, inputNode, objectName):
+    pbrt_file.write(r'DiffuseAreaLight "%s"' %(inputNode.name))
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"float scale" [ %s ]' % (1.0))
+    pbrt_file.write("\n")
+    pbrt_file.write(r'"shape" [ "%s" ]' % (objectName))
+    pbrt_file.write("\n")
+    return ''
+
 def export_medium(pbrt_file, inputNode):
     if inputNode is not None:
          for node_links in inputNode.links:
@@ -951,6 +966,9 @@ def export_material(pbrt_file, object, slotIndex):
                             export_Pbrt_V4_Conductor(pbrt_file, currentMaterial)
                         if currentMaterial.bl_idname == 'Pbrt_V4_Coated_Conductor' :
                             export_Pbrt_V4_Coated_Conductor(pbrt_file, currentMaterial)
+                        if currentMaterial.bl_idname == 'Pbrt_V4_Diffuse_Area_Light' :
+                            export_Pbrt_V4_Diffuse_Area_Light(pbrt_file, currentMaterial, object.name)
+
 
     return''
 

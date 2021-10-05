@@ -30,7 +30,8 @@ pbrt_v4_shader_categories = [
         NodeItem("Pbrt_V4_Conductor"),
         NodeItem("Pbrt_V4_Thin_Dielectric"),
         NodeItem("Pbrt_V4_Coated_Conductor"),
-        NodeItem("Pbrt_V4_Measured")
+        NodeItem("Pbrt_V4_Measured"),
+        NodeItem("Pbrt_V4_Diffuse_Area_Light")
         ]),
     ]
 
@@ -448,6 +449,25 @@ class Pbrt_V4_Measured(Node, MyCustomTreeNode):
 
     def draw_label(self):
         return "Pbrt V4 Measured"
+
+
+class Pbrt_V4_Diffuse_Area_Light(Node, MyCustomTreeNode):
+    '''A custom node'''
+    bl_idname = 'Pbrt_V4_Diffuse_Area_Light'
+    bl_label = 'Pbrt V4 Diffuse Area Light'
+    bl_icon = 'INFO'
+    show_texture = True
+
+    def init(self, context):
+        self.outputs.new('NodeSocketFloat', "Pbrt V4 Diffuse Are Light")
+        #measurement = self.inputs.new('NodeSocketFloat', "Measurement file")
+        #measurement.hide_value = True
+
+        #displacementTexture = self.inputs.new('NodeSocketColor', "displacement texture")
+        #displacementTexture.hide_value = True
+
+    def draw_label(self):
+        return "Pbrt V4 Diffuse Area Light"
 
 def register():
     nodeitems_utils.register_node_categories("CUSTOM_NODES", pbrt_v4_shader_categories)
