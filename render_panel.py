@@ -13,6 +13,8 @@ class ExportPbrtScene(bpy.types.Operator):
         filepath_full = bpy.path.abspath(bpy.data.scenes[0].exportpath)
         print(filepath_full)
         for frameNumber in range(bpy.data.scenes['Scene'].batch_frame_start, bpy.data.scenes['Scene'].batch_frame_end +1):
+            #Clear exported textures array on each export.
+            render_exporter.exportedTextures = []
             bpy.data.scenes['Scene'].frame_set(frameNumber)
             print("Exporting frame: %s" % (frameNumber))
             render_exporter.export_pbrt(filepath_full, bpy.data.scenes['Scene'], '{0:05d}'.format(frameNumber))

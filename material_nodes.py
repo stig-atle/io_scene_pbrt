@@ -233,7 +233,7 @@ class Pbrt_V4_Subsurface(Node, MyCustomTreeNode):
     def draw_buttons(self, context, layout):
         layout.prop(self, "presetName", text = 'preset Name')
         layout.prop(self, "roughness",text = 'roughness')
-        layout.prop(self, "Sigma",text = 'Sigma')
+        #layout.prop(self, "Sigma",text = 'Sigma')
         layout.prop(self, "g",text = 'g')
         layout.prop(self, "remaproughness",text = 'remaproughness')
         layout.prop(self, "scale",text = 'scale')
