@@ -32,6 +32,9 @@ class PBRTWriter:
 
     def close(self):
         self.file.close()
+        
+def objects_in_render(scene):
+    return [ob for ob in scene.objects if not ob.hide_render]
 
 def write_ply(file, mesh, indices, normals, i):
 
@@ -133,7 +136,7 @@ def measure(first, second):
     return distance
 
 def export_spot_lights(pbrt_file, scene):
-    for ob in scene.objects:
+    for ob in objects_in_render(scene):
             print('OB TYPE: ' + ob.type)
             if ob.type == "LIGHT" :
                 la = ob.data
@@ -154,7 +157,7 @@ def export_spot_lights(pbrt_file, scene):
     return ''
 
 def export_point_lights(pbrt_file, scene):
-    for object in scene.objects:
+    for object in objects_in_render(scene):
             if object.type == "LIGHT" :
                 la = object.data
                 print('Light type: ' + la.type)
@@ -1216,7 +1219,7 @@ def export_geometry(pbrt_file, scene, frameNumber):
     # https://docs.blender.org/api/current/bpy.types.MeshLoopTriangle.html
     # https://wiki.blender.org/wiki/Reference/Release_Notes/2.80/Python_API/Mesh_API
 
-    for object in scene.objects:
+    for object in objects_in_render(scene):
         print("exporting:")
         print(object.name)
 
